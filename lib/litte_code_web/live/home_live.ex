@@ -272,11 +272,13 @@ defmodule LitteCodeWeb.HomeLive do
                   <.icon name="hero-arrow-down-tray" class="size-4" />
                   <span data-label>{gettext("Download PNG")}</span>
                 </button>
+                <%!-- Hidden for now while we figure out cross-browser clipboard support. --%>
                 <button
                   type="button"
                   data-qr-copy
                   data-copied-label={gettext("Copied!")}
                   class="btn btn-ghost btn-sm gap-2 disabled:opacity-50"
+                  hidden
                 >
                   <.icon name="hero-clipboard-document" class="size-4" />
                   <span data-label>{gettext("Copy image")}</span>
@@ -372,6 +374,7 @@ defmodule LitteCodeWeb.HomeLive do
                   >
                     {display_short_url(@shortened.hash)}
                   </a>
+                  <%!-- Hidden for now while we figure out cross-browser clipboard support. --%>
                   <button
                     type="button"
                     id="copy-shortened"
@@ -380,6 +383,7 @@ defmodule LitteCodeWeb.HomeLive do
                     data-copied-label={gettext("Copied!")}
                     class="btn btn-ghost btn-sm gap-1"
                     aria-label={gettext("Copy short link")}
+                    hidden
                   >
                     <.icon name="hero-clipboard-document" class="size-4" /> {gettext("Copy")}
                   </button>
