@@ -27,6 +27,16 @@ defmodule LitteCodeWeb.Router do
     post "/locale/:locale", LocaleController, :update
   end
 
+  # Plausible analytics reverse proxy. Not part of the `:browser` pipeline
+  # — skips CSRF (beacons don't send tokens) and session bookkeeping.
+  scope "/", LitteCodeWeb do
+    get "/js/:filename", PlausibleProxyController, :script
+    post "/api/event", PlausibleProxyController, :event
+
+    # Readiness probe for Fly.io blue/green deploys and uptime monitors.
+    get "/up", HealthController, :show
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", LitteCodeWeb do
   #   pipe_through :api

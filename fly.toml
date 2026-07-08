@@ -10,6 +10,10 @@ kill_signal = 'SIGTERM'
 [build]
 
 [deploy]
+  # Blue/green: Fly boots a second set of machines, waits for their health
+  # checks to pass, flips traffic over, then decommissions the old set.
+  # Zero-downtime deploys at the cost of briefly running 2x machines.
+  strategy = 'bluegreen'
   release_command = '/app/bin/migrate'
 
 [env]
@@ -28,6 +32,16 @@ kill_signal = 'SIGTERM'
     type = 'connections'
     hard_limit = 1000
     soft_limit = 1000
+
+  # Blue/green needs a real readiness signal to know when the new machines
+  # are ready to take traffic. `/up` returns 200 as soon as the app boots.
+  [[http_service.checks]]
+    grace_period = '10s'
+    interval = '30s'
+    method = 'GET'
+    path = '/up'
+    protocol = 'http'
+    timeout = '5s'
 
 [[vm]]
   memory = '1gb'
