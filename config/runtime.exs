@@ -66,6 +66,10 @@ if config_env() == :prod do
 
   config :litte_code, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  # Redirect all off-canonical hostnames (e.g. www.little-co.de, fly.dev
+  # preview URLs) to PHX_HOST with a 301.
+  config :litte_code, LitteCodeWeb.Plugs.CanonicalHost, enabled: true
+
   config :litte_code, LitteCodeWeb.Endpoint,
     url: [host: host, port: url_port, scheme: scheme],
     http: [

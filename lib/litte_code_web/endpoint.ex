@@ -15,6 +15,10 @@ defmodule LitteCodeWeb.Endpoint do
     websocket: [connect_info: [:peer_data, session: @session_options]],
     longpoll: [connect_info: [:peer_data, session: @session_options]]
 
+  # Redirect off-canonical hostnames to `PHX_HOST` in prod (no-op in dev/test).
+  # Placed before Plug.Static so static assets are only served on the canonical host.
+  plug LitteCodeWeb.Plugs.CanonicalHost
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
