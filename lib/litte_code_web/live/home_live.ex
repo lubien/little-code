@@ -23,10 +23,10 @@ defmodule LitteCodeWeb.HomeLive do
 
     {:ok,
      socket
-     |> assign(:page_title, "little-co.de — tiny links & QR codes")
+     |> assign(:page_title, gettext("little-co.de — tiny links & QR codes"))
      |> assign(
        :page_description,
-       "Shorten URLs and generate QR codes in a click. Free, no sign-up."
+       gettext("Shorten URLs and generate QR codes in a click. Free, no sign-up.")
      )
      |> assign(:current_path, "/")
      |> assign(:tab, :qr)
@@ -47,7 +47,16 @@ defmodule LitteCodeWeb.HomeLive do
         _ -> :qr
       end
 
-    {:noreply, assign(socket, :tab, tab)}
+    current_path =
+      case tab do
+        :shorten -> "/?tab=shorten"
+        :qr -> "/"
+      end
+
+    {:noreply,
+     socket
+     |> assign(:tab, tab)
+     |> assign(:current_path, current_path)}
   end
 
   @impl true
@@ -88,13 +97,13 @@ defmodule LitteCodeWeb.HomeLive do
        |> assign(:shortened, link)
        |> assign(:shorten_form, to_form(Links.change_link(), as: :link))
        |> assign_new_captcha()
-       |> put_flash(:info, "Shortened! Copy your link below.")}
+       |> put_flash(:info, gettext("Shortened! Copy your link below."))}
     else
       {:error, :rate_limited} ->
         {:noreply,
          socket
          |> assign_new_captcha()
-         |> put_flash(:error, "You're going a bit fast. Try again in a minute.")}
+         |> put_flash(:error, gettext("You're going a bit fast. Try again in a minute."))}
 
       {:error, :honeypot} ->
         # Bots don't need a real error — silently drop.
@@ -104,25 +113,25 @@ defmodule LitteCodeWeb.HomeLive do
         {:noreply,
          socket
          |> assign_new_captcha()
-         |> put_flash(:error, "Captcha answer was incorrect. Please try again.")}
+         |> put_flash(:error, gettext("Captcha answer was incorrect. Please try again."))}
 
       {:error, :missing} ->
         {:noreply,
          socket
          |> assign_new_captcha()
-         |> put_flash(:error, "Please solve the captcha to continue.")}
+         |> put_flash(:error, gettext("Please solve the captcha to continue."))}
 
       {:error, :expired} ->
         {:noreply,
          socket
          |> assign_new_captcha()
-         |> put_flash(:error, "Captcha expired. Please solve the new one.")}
+         |> put_flash(:error, gettext("Captcha expired. Please solve the new one."))}
 
       {:error, :hash_exhausted} ->
         {:noreply,
          socket
          |> assign_new_captcha()
-         |> put_flash(:error, "We couldn't generate a unique hash. Please retry.")}
+         |> put_flash(:error, gettext("We couldn't generate a unique hash. Please retry."))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,
@@ -152,21 +161,24 @@ defmodule LitteCodeWeb.HomeLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} locale={@locale} current_path={@current_path}>
       <div class="max-w-2xl mx-auto w-full">
         <div class="text-center mb-10">
           <h1 class="text-4xl sm:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
             little-co.de
           </h1>
           <p class="mt-3 text-base-content/70">
-            Tiny links and pretty QR codes. Nothing else.
+            {gettext("Tiny links and pretty QR codes. Nothing else.")}
+          </p>
+          <p class="mt-2 text-sm text-base-content/50 italic max-w-md mx-auto">
+            {gettext("I got pissed at QR Code sites so I built my own with no ads and no charges")}
           </p>
         </div>
 
         <div
           role="tablist"
           class="tabs tabs-boxed bg-base-200 justify-center mb-8"
-          aria-label="Tools"
+          aria-label={gettext("Tools")}
         >
           <button
             id="tab-qr"
@@ -176,7 +188,7 @@ defmodule LitteCodeWeb.HomeLive do
             phx-value-tab="qr"
             class={["tab gap-2", @tab == :qr && "tab-active"]}
           >
-            <.icon name="hero-qr-code" class="size-4" /> QR Code
+            <.icon name="hero-qr-code" class="size-4" /> {gettext("QR Code")}
           </button>
           <button
             id="tab-shorten"
@@ -186,7 +198,7 @@ defmodule LitteCodeWeb.HomeLive do
             phx-value-tab="shorten"
             class={["tab gap-2", @tab == :shorten && "tab-active"]}
           >
-            <.icon name="hero-link" class="size-4" /> Shorten URL
+            <.icon name="hero-link" class="size-4" /> {gettext("Shorten URL")}
           </button>
         </div>
 
@@ -202,7 +214,7 @@ defmodule LitteCodeWeb.HomeLive do
               <.input
                 field={@qr_form[:text]}
                 type="text"
-                label="Any text or URL"
+                label={gettext("Any text or URL")}
                 placeholder="https://example.com"
                 phx-debounce="150"
               />
@@ -220,7 +232,7 @@ defmodule LitteCodeWeb.HomeLive do
                 :if={is_nil(@qr_svg)}
                 class="p-6 bg-base-200 rounded-box w-64 h-64 flex items-center justify-center text-sm text-base-content/60"
               >
-                Type something to generate a QR code.
+                {gettext("Type something to generate a QR code.")}
               </div>
             </div>
           </div>
@@ -244,7 +256,7 @@ defmodule LitteCodeWeb.HomeLive do
               <.input
                 field={@shorten_form[:url]}
                 type="url"
-                label="Long URL"
+                label={gettext("Long URL")}
                 placeholder="https://example.com/some/very/long/path"
                 required
               />
@@ -265,16 +277,16 @@ defmodule LitteCodeWeb.HomeLive do
               <div class="mt-2 rounded-box border border-base-200 bg-base-200/40 p-4">
                 <div class="flex items-center justify-between mb-2">
                   <label for="captcha-answer" class="text-sm font-medium">
-                    Captcha: what is
+                    {gettext("Captcha: what is")}
                     <span class="font-mono font-semibold ml-1">{@captcha.question}?</span>
                   </label>
                   <button
                     type="button"
                     class="btn btn-ghost btn-xs gap-1"
                     phx-click="new_captcha"
-                    aria-label="New captcha"
+                    aria-label={gettext("New captcha")}
                   >
-                    <.icon name="hero-arrow-path" class="size-3" /> New
+                    <.icon name="hero-arrow-path" class="size-3" /> {gettext("New")}
                   </button>
                 </div>
                 <input type="hidden" name="captcha_token" value={@captcha.token} />
@@ -285,14 +297,14 @@ defmodule LitteCodeWeb.HomeLive do
                   inputmode="numeric"
                   pattern="-?\d+"
                   class="input w-full"
-                  placeholder="Your answer"
+                  placeholder={gettext("Your answer")}
                   required
                 />
               </div>
 
               <div class="mt-4 flex justify-end">
                 <button type="submit" class="btn btn-primary gap-2">
-                  <.icon name="hero-scissors" class="size-4" /> Shorten
+                  <.icon name="hero-scissors" class="size-4" /> {gettext("Shorten")}
                 </button>
               </div>
             </.form>
@@ -300,7 +312,7 @@ defmodule LitteCodeWeb.HomeLive do
             <div :if={@shortened} id="shorten-result" class="mt-6">
               <div class="rounded-box border border-success/40 bg-success/5 p-4">
                 <p class="text-xs uppercase tracking-wide text-success/80 mb-1">
-                  Your short link
+                  {gettext("Your short link")}
                 </p>
                 <div class="flex items-center gap-2">
                   <a
@@ -317,14 +329,15 @@ defmodule LitteCodeWeb.HomeLive do
                     id="copy-shortened"
                     phx-hook=".CopyToClipboard"
                     data-copy={short_url(@shortened.hash)}
+                    data-copied-label={gettext("Copied!")}
                     class="btn btn-ghost btn-sm gap-1"
-                    aria-label="Copy short link"
+                    aria-label={gettext("Copy short link")}
                   >
-                    <.icon name="hero-clipboard-document" class="size-4" /> Copy
+                    <.icon name="hero-clipboard-document" class="size-4" /> {gettext("Copy")}
                   </button>
                 </div>
                 <p class="text-xs text-base-content/60 mt-2 break-all">
-                  Redirects to <span class="font-mono">{@shortened.url}</span>
+                  {gettext("Redirects to")} <span class="font-mono">{@shortened.url}</span>
                 </p>
               </div>
             </div>
@@ -334,10 +347,11 @@ defmodule LitteCodeWeb.HomeLive do
                 mounted() {
                   this.el.addEventListener("click", async () => {
                     const value = this.el.dataset.copy
+                    const copiedLabel = this.el.dataset.copiedLabel || "Copied!"
                     try {
                       await navigator.clipboard.writeText(value)
                       const original = this.el.innerHTML
-                      this.el.innerHTML = "Copied!"
+                      this.el.innerHTML = copiedLabel
                       setTimeout(() => { this.el.innerHTML = original }, 1500)
                     } catch (_) {}
                   })

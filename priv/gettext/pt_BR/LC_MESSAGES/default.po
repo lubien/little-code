@@ -1,0 +1,193 @@
+## "msgid"s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove "msgid"s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use "mix gettext.extract --merge" or "mix gettext.merge"
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/litte_code_web/components/core_components.ex:375
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Ações"
+
+#: lib/litte_code_web/live/home_live.ex:217
+#, elixir-autogen, elixir-format
+msgid "Any text or URL"
+msgstr "Qualquer texto ou URL"
+
+#: lib/litte_code_web/components/layouts.ex:199
+#: lib/litte_code_web/components/layouts.ex:214
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr "Tentando reconectar"
+
+#: lib/litte_code_web/live/home_live.ex:116
+#, elixir-autogen, elixir-format
+msgid "Captcha answer was incorrect. Please try again."
+msgstr "Resposta do captcha incorreta. Tente novamente."
+
+#: lib/litte_code_web/live/home_live.ex:128
+#, elixir-autogen, elixir-format
+msgid "Captcha expired. Please solve the new one."
+msgstr "Captcha expirado. Resolva o novo desafio."
+
+#: lib/litte_code_web/live/home_live.ex:280
+#, elixir-autogen, elixir-format
+msgid "Captcha: what is"
+msgstr "Captcha: quanto é"
+
+#: lib/litte_code_web/live/home_live.ex:332
+#, elixir-autogen, elixir-format
+msgid "Copied!"
+msgstr "Copiado!"
+
+#: lib/litte_code_web/live/home_live.ex:336
+#, elixir-autogen, elixir-format
+msgid "Copy"
+msgstr "Copiar"
+
+#: lib/litte_code_web/live/home_live.ex:334
+#, elixir-autogen, elixir-format
+msgid "Copy short link"
+msgstr "Copiar link curto"
+
+#: lib/litte_code_web/live/home_live.ex:174
+#, elixir-autogen, elixir-format
+msgid "I got pissed at QR Code sites so I built my own with no ads and no charges"
+msgstr "Eu fiquei puto com sites de QR Code, então fiz o meu próprio sem anúncios e sem cobrar nada"
+
+#: lib/litte_code_web/components/layouts.ex:140
+#, elixir-autogen, elixir-format
+msgid "Language"
+msgstr "Idioma"
+
+#: lib/litte_code_web/live/home_live.ex:259
+#, elixir-autogen, elixir-format
+msgid "Long URL"
+msgstr "URL longa"
+
+#: lib/litte_code_web/components/layouts.ex:106
+#, elixir-autogen, elixir-format
+msgid "Lubien on GitHub"
+msgstr "Lubien no GitHub"
+
+#: lib/litte_code_web/components/layouts.ex:80
+#, elixir-autogen, elixir-format
+msgid "Made with"
+msgstr "Feito com"
+
+#: lib/litte_code_web/live/home_live.ex:289
+#, elixir-autogen, elixir-format
+msgid "New"
+msgstr "Novo"
+
+#: lib/litte_code_web/live/home_live.ex:287
+#, elixir-autogen, elixir-format
+msgid "New captcha"
+msgstr "Novo captcha"
+
+#: lib/litte_code_web/live/home_live.ex:122
+#, elixir-autogen, elixir-format
+msgid "Please solve the captcha to continue."
+msgstr "Resolva o captcha para continuar."
+
+#: lib/litte_code_web/live/home_live.ex:191
+#, elixir-autogen, elixir-format
+msgid "QR Code"
+msgstr "QR Code"
+
+#: lib/litte_code_web/live/home_live.ex:340
+#, elixir-autogen, elixir-format
+msgid "Redirects to"
+msgstr "Redireciona para"
+
+#: lib/litte_code_web/live/home_live.ex:307
+#, elixir-autogen, elixir-format
+msgid "Shorten"
+msgstr "Encurtar"
+
+#: lib/litte_code_web/live/home_live.ex:201
+#, elixir-autogen, elixir-format
+msgid "Shorten URL"
+msgstr "Encurtar URL"
+
+#: lib/litte_code_web/live/home_live.ex:29
+#, elixir-autogen, elixir-format
+msgid "Shorten URLs and generate QR codes in a click. Free, no sign-up."
+msgstr "Encurte URLs e gere QR codes com um clique. Grátis, sem cadastro."
+
+#: lib/litte_code_web/live/home_live.ex:100
+#, elixir-autogen, elixir-format
+msgid "Shortened! Copy your link below."
+msgstr "Encurtado! Copie seu link abaixo."
+
+#: lib/litte_code_web/components/layouts.ex:206
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr "Algo deu errado!"
+
+#: lib/litte_code_web/live/home_live.ex:171
+#, elixir-autogen, elixir-format
+msgid "Tiny links and pretty QR codes. Nothing else."
+msgstr "Links minúsculos e QR codes bonitos. Nada mais."
+
+#: lib/litte_code_web/live/home_live.ex:181
+#, elixir-autogen, elixir-format
+msgid "Tools"
+msgstr "Ferramentas"
+
+#: lib/litte_code_web/live/home_live.ex:235
+#, elixir-autogen, elixir-format
+msgid "Type something to generate a QR code."
+msgstr "Digite algo para gerar um QR code."
+
+#: lib/litte_code_web/components/layouts.ex:191
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr "Não conseguimos encontrar a internet"
+
+#: lib/litte_code_web/live/home_live.ex:134
+#, elixir-autogen, elixir-format
+msgid "We couldn't generate a unique hash. Please retry."
+msgstr "Não conseguimos gerar um hash único. Tente de novo."
+
+#: lib/litte_code_web/live/home_live.ex:106
+#, elixir-autogen, elixir-format
+msgid "You're going a bit fast. Try again in a minute."
+msgstr "Você está indo rápido demais. Tente novamente em um minuto."
+
+#: lib/litte_code_web/live/home_live.ex:300
+#, elixir-autogen, elixir-format
+msgid "Your answer"
+msgstr "Sua resposta"
+
+#: lib/litte_code_web/live/home_live.ex:315
+#, elixir-autogen, elixir-format
+msgid "Your short link"
+msgstr "Seu link curto"
+
+#: lib/litte_code_web/components/layouts.ex:91
+#, elixir-autogen, elixir-format
+msgid "by"
+msgstr "por"
+
+#: lib/litte_code_web/components/core_components.ex:81
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr "fechar"
+
+#: lib/litte_code_web/live/home_live.ex:26
+#, elixir-autogen, elixir-format
+msgid "little-co.de — tiny links & QR codes"
+msgstr "little-co.de — links minúsculos & QR codes"
+
+#: lib/litte_code_web/components/layouts.ex:82
+#, elixir-autogen, elixir-format
+msgid "using"
+msgstr "usando"

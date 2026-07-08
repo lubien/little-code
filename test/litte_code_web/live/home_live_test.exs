@@ -16,6 +16,44 @@ defmodule LitteCodeWeb.HomeLiveTest do
       assert has_element?(view, "#qr-preview svg")
     end
 
+    test "renders the tagline and the ad-free explainer", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/")
+      assert html =~ "Tiny links and pretty QR codes. Nothing else."
+
+      assert html =~
+               "I got pissed at QR Code sites so I built my own with no ads and no charges"
+    end
+
+    test "renders the language switcher with EN and PT buttons", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/")
+      assert has_element?(view, "#lang-en")
+      assert has_element?(view, "#lang-pt_BR")
+    end
+
+    test "renders the page in Portuguese when the session locale is pt_BR", %{conn: conn} do
+      conn = Plug.Test.init_test_session(conn, %{"locale" => "pt_BR"})
+      {:ok, _view, html} = live(conn, ~p"/")
+
+      assert html =~ "Links minúsculos e QR codes bonitos. Nada mais."
+      assert html =~ "Encurtar URL"
+    end
+
+    test "honors Accept-Language when there is no session locale", %{conn: conn} do
+      conn =
+        conn
+        |> Plug.Conn.put_req_header("accept-language", "pt-BR,pt;q=0.9,en;q=0.7")
+
+      {:ok, _view, html} = live(conn, ~p"/")
+      assert html =~ "Encurtar URL"
+    end
+
+    test "defaults to English when Accept-Language has nothing we support", %{conn: conn} do
+      conn = Plug.Conn.put_req_header(conn, "accept-language", "fr-FR,fr;q=0.9")
+      {:ok, _view, html} = live(conn, ~p"/")
+      assert html =~ "Shorten URL"
+      refute html =~ "Encurtar URL"
+    end
+
     test "footer credits Lubien and Phoenix Framework", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/")
       assert html =~ "Phoenix Framework"

@@ -11,6 +11,13 @@ config :litte_code,
   ecto_repos: [LitteCode.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+# Internationalization
+config :gettext, :default_locale, "en"
+
+config :litte_code, LitteCodeWeb.Gettext,
+  default_locale: "en",
+  locales: ["en", "pt_BR"]
+
 # Configure the endpoint
 config :litte_code, LitteCodeWeb.Endpoint,
   url: [host: "localhost"],

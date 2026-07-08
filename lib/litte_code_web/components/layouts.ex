@@ -5,11 +5,23 @@ defmodule LitteCodeWeb.Layouts do
   """
   use LitteCodeWeb, :html
 
+  alias LitteCodeWeb.I18n
+
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
   # skeleton of your application, namely HTML headers
   # and other static content.
   embed_templates "layouts/*"
+
+  @doc """
+  Converts an application locale code (e.g. `"pt_BR"`) into a BCP-47
+  language tag suitable for the `<html lang>` attribute (`"pt-BR"`).
+  """
+  def html_lang(nil), do: "en"
+
+  def html_lang(locale) when is_binary(locale) do
+    String.replace(locale, "_", "-")
+  end
 
   @doc """
   Renders your app layout.
@@ -31,9 +43,14 @@ defmodule LitteCodeWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://phoenix.hexdocs.pm/scopes.html)"
 
+  attr :locale, :string, default: nil, doc: "current locale code (e.g. \"en\")"
+  attr :current_path, :string, default: "/", doc: "current request path, for locale switcher"
+
   slot :inner_block, required: true
 
   def app(assigns) do
+    assigns = assign_new(assigns, :locale, fn -> I18n.default_locale() end)
+
     ~H"""
     <div class="min-h-screen flex flex-col">
       <header class="navbar px-4 sm:px-6 lg:px-8">
@@ -46,6 +63,7 @@ defmodule LitteCodeWeb.Layouts do
           </a>
         </div>
         <div class="flex-none flex items-center gap-2">
+          <.language_switcher current_locale={@locale} current_path={@current_path} />
           <.theme_toggle />
         </div>
       </header>
@@ -58,8 +76,10 @@ defmodule LitteCodeWeb.Layouts do
 
       <footer class="border-t border-base-200 py-6 px-4 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-base-content/60">
-          <p class="inline-flex items-center gap-1">
-            Made with <.icon name="hero-heart-solid" class="size-4 text-error" /> using
+          <p class="inline-flex items-center gap-1 flex-wrap justify-center">
+            {gettext("Made with")}
+            <.icon name="hero-heart-solid" class="size-4 text-error" />
+            {gettext("using")}
             <a
               href="https://www.phoenixframework.org/"
               class="link link-hover font-medium text-base-content"
@@ -68,7 +88,7 @@ defmodule LitteCodeWeb.Layouts do
             >
               Phoenix Framework
             </a>
-            by
+            {gettext("by")}
             <a
               href="https://github.com/lubien"
               class="link link-hover font-medium text-base-content"
@@ -83,7 +103,7 @@ defmodule LitteCodeWeb.Layouts do
             class="link link-hover inline-flex items-center gap-1"
             target="_blank"
             rel="noopener"
-            aria-label="Lubien on GitHub"
+            aria-label={gettext("Lubien on GitHub")}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" class="size-4 fill-current">
               <path
@@ -99,6 +119,53 @@ defmodule LitteCodeWeb.Layouts do
     </div>
 
     <.flash_group flash={@flash} />
+    """
+  end
+
+  @doc """
+  A tiny two-button locale switcher styled like the theme toggle.
+
+  Each button is a plain `<form method="post">` so switching works without
+  JavaScript and always triggers a fresh SSR pass with the new locale.
+  """
+  attr :current_locale, :string, required: true
+  attr :current_path, :string, default: "/"
+
+  def language_switcher(assigns) do
+    ~H"""
+    <div
+      class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full"
+      id="language-switcher"
+      role="group"
+      aria-label={gettext("Language")}
+    >
+      <%= for {locale, index} <- Enum.with_index(I18n.locales()) do %>
+        <form
+          method="post"
+          action={~p"/locale/#{locale.code}"}
+          class="contents"
+        >
+          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <input type="hidden" name="return_to" value={@current_path} />
+          <button
+            type="submit"
+            id={"lang-#{locale.code}"}
+            aria-pressed={@current_locale == locale.code}
+            title={locale.label}
+            class={[
+              "px-3 py-1 text-xs font-semibold rounded-full cursor-pointer transition-colors",
+              index == 0 && "rounded-r-none",
+              index == length(I18n.locales()) - 1 && "rounded-l-none",
+              @current_locale == locale.code &&
+                "bg-base-100 text-base-content brightness-200",
+              @current_locale != locale.code && "text-base-content/60 hover:text-base-content"
+            ]}
+          >
+            {locale.short}
+          </button>
+        </form>
+      <% end %>
+    </div>
     """
   end
 

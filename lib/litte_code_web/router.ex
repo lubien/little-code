@@ -8,6 +8,7 @@ defmodule LitteCodeWeb.Router do
     plug :put_root_layout, html: {LitteCodeWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug LitteCodeWeb.Plugs.Locale
   end
 
   pipeline :api do
@@ -17,9 +18,13 @@ defmodule LitteCodeWeb.Router do
   scope "/", LitteCodeWeb do
     pipe_through :browser
 
-    live "/", HomeLive, :index
+    live_session :default, on_mount: {LitteCodeWeb.LiveHooks, :set_locale} do
+      live "/", HomeLive, :index
+    end
 
     get "/l/:hash", LinkController, :show
+    put "/locale/:locale", LocaleController, :update
+    post "/locale/:locale", LocaleController, :update
   end
 
   # Other scopes may use custom stacks.
