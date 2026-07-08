@@ -15,7 +15,11 @@ config :litte_code, LitteCodeWeb.Endpoint,
   force_ssl: [
     rewrite_on: [:x_forwarded_proto],
     exclude: [
-      # paths: ["/health"],
+      # Fly.io's blue/green health check hits `/up` over plain HTTP from
+      # its proxy pool. Redirecting it to HTTPS makes the check fail and
+      # deploys get stuck on the blue set forever.
+      # https://community.fly.io/t/health-checks-going-through-plug-ssl/2225
+      paths: ["/up"],
       hosts: ["localhost", "127.0.0.1"]
     ]
   ]
