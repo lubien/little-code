@@ -227,6 +227,10 @@ defmodule LitteCodeWeb.HomeLive do
                 autocorrect="off"
                 autocapitalize="off"
                 spellcheck="false"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 class="w-full input"
                 phx-update="ignore"
               />
@@ -309,6 +313,14 @@ defmodule LitteCodeWeb.HomeLive do
                 label={gettext("Long URL")}
                 placeholder="https://example.com/some/very/long/path"
                 required
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-bwignore="true"
+                data-form-type="other"
               />
 
               <%!-- Honeypot: real users won't see or fill this. --%>
@@ -349,6 +361,14 @@ defmodule LitteCodeWeb.HomeLive do
                   class="input w-full"
                   placeholder={gettext("Your answer")}
                   required
+                  autocomplete="off"
+                  autocorrect="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  data-1p-ignore="true"
+                  data-lpignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
                 />
               </div>
 
