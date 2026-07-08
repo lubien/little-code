@@ -81,6 +81,43 @@ defmodule LitteCodeWeb.PlausibleProxyControllerTest do
       assert Enum.any?(headers, fn {k, v} -> k == "x-forwarded-for" and v != "" end)
     end
 
+    test "forwards raw text/plain beacons (navigator.sendBeacon path)", %{conn: conn} do
+      # Regression: sendBeacon uses `text/plain` to avoid CORS preflight,
+      # which means Plug.Parsers never populates `body_params`. The old
+      # controller crashed on `Jason.encode!(%Plug.Conn.Unfetched{})` here.
+      test_pid = self()
+
+      Req.Test.stub(@stub_name, fn plug_conn ->
+        {:ok, body, plug_conn} = Plug.Conn.read_body(plug_conn)
+        send(test_pid, {:forwarded, body, plug_conn.req_headers})
+        Plug.Conn.send_resp(plug_conn, 202, "")
+      end)
+
+      raw = ~s({"n":"pageview","u":"https://little-co.de/","d":"little-co.de"})
+
+      conn =
+        conn
+        |> put_req_header("content-type", "text/plain")
+        |> post(~p"/api/event", raw)
+
+      assert response(conn, 202)
+      assert_receive {:forwarded, ^raw, headers}
+      assert {"content-type", "text/plain"} in headers
+    end
+
+    test "handles an empty POST body without crashing", %{conn: conn} do
+      Req.Test.stub(@stub_name, fn plug_conn ->
+        Plug.Conn.send_resp(plug_conn, 202, "")
+      end)
+
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/event", "")
+
+      assert response(conn, 202)
+    end
+
     test "returns 202 when the upstream errors — analytics never break the site",
          %{conn: conn} do
       Req.Test.stub(@stub_name, fn plug_conn ->

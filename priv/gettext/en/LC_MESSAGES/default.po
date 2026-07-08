@@ -11,12 +11,12 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/litte_code_web/components/core_components.ex:375
+#: lib/litte_code_web/components/core_components.ex:376
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:217
+#: lib/litte_code_web/live/home_live.ex:210
 #, elixir-autogen, elixir-format
 msgid "Any text or URL"
 msgstr ""
@@ -27,37 +27,38 @@ msgstr ""
 msgid "Attempting to reconnect"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:116
+#: lib/litte_code_web/live/home_live.ex:106
 #, elixir-autogen, elixir-format
 msgid "Captcha answer was incorrect. Please try again."
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:128
+#: lib/litte_code_web/live/home_live.ex:118
 #, elixir-autogen, elixir-format
 msgid "Captcha expired. Please solve the new one."
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:280
+#: lib/litte_code_web/live/home_live.ex:328
 #, elixir-autogen, elixir-format
 msgid "Captcha: what is"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:332
+#: lib/litte_code_web/live/home_live.ex:278
+#: lib/litte_code_web/live/home_live.ex:380
 #, elixir-autogen, elixir-format
 msgid "Copied!"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:336
+#: lib/litte_code_web/live/home_live.ex:384
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:334
+#: lib/litte_code_web/live/home_live.ex:382
 #, elixir-autogen, elixir-format
 msgid "Copy short link"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:174
+#: lib/litte_code_web/live/home_live.ex:164
 #, elixir-autogen, elixir-format
 msgid "I got pissed at QR Code sites so I built my own with no ads and no charges"
 msgstr ""
@@ -67,7 +68,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:259
+#: lib/litte_code_web/live/home_live.ex:307
 #, elixir-autogen, elixir-format
 msgid "Long URL"
 msgstr ""
@@ -82,47 +83,48 @@ msgstr ""
 msgid "Made with"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:289
+#: lib/litte_code_web/live/home_live.ex:337
 #, elixir-autogen, elixir-format
 msgid "New"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:287
+#: lib/litte_code_web/live/home_live.ex:335
 #, elixir-autogen, elixir-format
 msgid "New captcha"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:122
+#: lib/litte_code_web/live/home_live.ex:112
 #, elixir-autogen, elixir-format
 msgid "Please solve the captcha to continue."
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:191
+#: lib/litte_code_web/live/home_live.ex:181
+#: lib/litte_code_web/live/home_live.ex:247
 #, elixir-autogen, elixir-format
 msgid "QR Code"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:340
+#: lib/litte_code_web/live/home_live.ex:388
 #, elixir-autogen, elixir-format
 msgid "Redirects to"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:307
+#: lib/litte_code_web/live/home_live.ex:355
 #, elixir-autogen, elixir-format
 msgid "Shorten"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:201
+#: lib/litte_code_web/live/home_live.ex:191
 #, elixir-autogen, elixir-format
 msgid "Shorten URL"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:29
+#: lib/litte_code_web/live/home_live.ex:28
 #, elixir-autogen, elixir-format
 msgid "Shorten URLs and generate QR codes in a click. Free, no sign-up."
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:100
+#: lib/litte_code_web/live/home_live.ex:90
 #, elixir-autogen, elixir-format
 msgid "Shortened! Copy your link below."
 msgstr ""
@@ -132,17 +134,17 @@ msgstr ""
 msgid "Something went wrong!"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:171
+#: lib/litte_code_web/live/home_live.ex:161
 #, elixir-autogen, elixir-format
 msgid "Tiny links and pretty QR codes. Nothing else."
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:181
+#: lib/litte_code_web/live/home_live.ex:171
 #, elixir-autogen, elixir-format
 msgid "Tools"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:235
+#: lib/litte_code_web/live/home_live.ex:257
 #, elixir-autogen, elixir-format
 msgid "Type something to generate a QR code."
 msgstr ""
@@ -152,22 +154,22 @@ msgstr ""
 msgid "We can't find the internet"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:134
+#: lib/litte_code_web/live/home_live.ex:124
 #, elixir-autogen, elixir-format
 msgid "We couldn't generate a unique hash. Please retry."
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:106
+#: lib/litte_code_web/live/home_live.ex:96
 #, elixir-autogen, elixir-format
 msgid "You're going a bit fast. Try again in a minute."
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:300
+#: lib/litte_code_web/live/home_live.ex:348
 #, elixir-autogen, elixir-format
 msgid "Your answer"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:315
+#: lib/litte_code_web/live/home_live.ex:363
 #, elixir-autogen, elixir-format
 msgid "Your short link"
 msgstr ""
@@ -182,7 +184,7 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:26
+#: lib/litte_code_web/live/home_live.ex:25
 #, elixir-autogen, elixir-format
 msgid "little-co.de — tiny links & QR codes"
 msgstr ""
@@ -200,4 +202,19 @@ msgstr ""
 #: lib/litte_code_web/components/layouts.ex:124
 #, elixir-autogen, elixir-format
 msgid "View source on GitHub"
+msgstr ""
+
+#: lib/litte_code_web/live/home_live.ex:282
+#, elixir-autogen, elixir-format
+msgid "Copy image"
+msgstr ""
+
+#: lib/litte_code_web/live/home_live.ex:273
+#, elixir-autogen, elixir-format
+msgid "Download PNG"
+msgstr ""
+
+#: lib/litte_code_web/live/home_live.ex:269
+#, elixir-autogen, elixir-format
+msgid "Downloaded!"
 msgstr ""

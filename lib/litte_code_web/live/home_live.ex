@@ -232,7 +232,7 @@ defmodule LitteCodeWeb.HomeLive do
               />
             </div>
 
-            <div class="mt-4 flex justify-center">
+            <div class="mt-4 flex flex-col items-center gap-4">
               <%!--
                 `phx-update="ignore"` on the wrapper keeps LiveView from clobbering
                 the QR SVG that our JS hook writes in on every keystroke.
@@ -256,6 +256,31 @@ defmodule LitteCodeWeb.HomeLive do
                 >
                   {gettext("Type something to generate a QR code.")}
                 </div>
+              </div>
+
+              <div
+                class="flex flex-wrap items-center justify-center gap-2"
+                phx-update="ignore"
+                id="qr-actions"
+              >
+                <button
+                  type="button"
+                  data-qr-download
+                  data-copied-label={gettext("Downloaded!")}
+                  class="btn btn-primary btn-sm gap-2 disabled:opacity-50"
+                >
+                  <.icon name="hero-arrow-down-tray" class="size-4" />
+                  <span data-label>{gettext("Download PNG")}</span>
+                </button>
+                <button
+                  type="button"
+                  data-qr-copy
+                  data-copied-label={gettext("Copied!")}
+                  class="btn btn-ghost btn-sm gap-2 disabled:opacity-50"
+                >
+                  <.icon name="hero-clipboard-document" class="size-4" />
+                  <span data-label>{gettext("Copy image")}</span>
+                </button>
               </div>
             </div>
           </div>

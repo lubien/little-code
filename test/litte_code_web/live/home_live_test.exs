@@ -31,6 +31,15 @@ defmodule LitteCodeWeb.HomeLiveTest do
       assert has_element?(view, "#qr-text-input")
     end
 
+    test "renders Download PNG and Copy image buttons for the QR", %{conn: conn} do
+      {:ok, view, html} = live(conn, ~p"/")
+
+      assert has_element?(view, "button[data-qr-download]")
+      assert has_element?(view, "button[data-qr-copy]")
+      assert html =~ "Download PNG"
+      assert html =~ "Copy image"
+    end
+
     test "renders the tagline and the ad-free explainer", %{conn: conn} do
       {:ok, _view, html} = live(conn, ~p"/")
       assert html =~ "Tiny links and pretty QR codes. Nothing else."

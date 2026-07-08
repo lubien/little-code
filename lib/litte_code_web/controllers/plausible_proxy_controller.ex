@@ -106,20 +106,28 @@ defmodule LitteCodeWeb.PlausibleProxyController do
   # a JSON event body is already parsed into `conn.body_params`. We
   # re-encode it — the round-trip is lossless for Plausible payloads
   # (string keys, JSON-native values). Requests that used a non-JSON
-  # content type (e.g. `text/plain` from `navigator.sendBeacon`) leave
-  # the body unread by parsers, so we can still `read_body/1` it.
+  # content type (e.g. `text/plain` from `navigator.sendBeacon`) never
+  # reach a parser: `body_params` stays as `%Plug.Conn.Unfetched{}` and
+  # the raw body is still available via `read_body/1`.
   defp fetch_request_body(conn) do
     content_type = req_header(conn, "content-type", "application/json")
 
-    cond do
-      is_map(conn.body_params) and map_size(conn.body_params) > 0 ->
-        {Jason.encode!(conn.body_params), "application/json", conn}
-
-      true ->
+    case conn.body_params do
+      %Plug.Conn.Unfetched{} ->
+        # Body wasn't consumed by any parser (e.g. text/plain beacon).
+        # Read it verbatim so we can forward whatever the client sent.
         case Plug.Conn.read_body(conn) do
           {:ok, body, conn} -> {body, content_type, conn}
           _ -> {"", content_type, conn}
         end
+
+      params when is_map(params) and map_size(params) > 0 ->
+        # Plug.Parsers successfully parsed a JSON body.
+        {Jason.encode!(params), "application/json", conn}
+
+      _ ->
+        # Empty body with a recognized content type.
+        {"", content_type, conn}
     end
   end
 
