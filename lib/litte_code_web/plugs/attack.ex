@@ -12,6 +12,15 @@ defmodule LitteCodeWeb.Plugs.Attack do
 
   import Plug.Conn
 
+  # Short-circuit: the Fly.io health check hits `/up` every 30s from many
+  # proxy IPs; letting it flow through the throttler would either count
+  # against a legitimate visitor's budget or (worse) start returning 429s
+  # once Fly's proxy pool gets busy. `allow` returns `{:allow, _}` which
+  # stops rule evaluation, so `/up` never touches the throttle counter.
+  rule "allow health check", conn do
+    allow(conn.request_path == "/up")
+  end
+
   rule "throttle by ip", conn do
     throttle(conn.remote_ip,
       period: 60_000,
