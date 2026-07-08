@@ -13,7 +13,22 @@ defmodule LitteCodeWeb.HomeLiveTest do
       assert has_element?(view, "#tab-qr")
       assert has_element?(view, "#tab-shorten")
       assert has_element?(view, "#qr-panel")
-      assert has_element?(view, "#qr-preview svg")
+      # SSR renders an initial QR SVG so users see something before JS boots.
+      assert has_element?(view, "#qr-preview-wrapper [data-qr-preview] svg")
+    end
+
+    test "the QR input opts out of iOS Safari's autocorrect / autocapitalize", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/")
+
+      assert html =~ ~s(autocorrect="off")
+      assert html =~ ~s(autocapitalize="off")
+      assert html =~ ~s(spellcheck="false")
+    end
+
+    test "the QR panel wires up the client-side generator hook", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/")
+      assert has_element?(view, ~s|#qr-code-generator[phx-hook="QRPreview"]|)
+      assert has_element?(view, "#qr-text-input")
     end
 
     test "renders the tagline and the ad-free explainer", %{conn: conn} do
@@ -72,28 +87,6 @@ defmodule LitteCodeWeb.HomeLiveTest do
       assert html =~ ~s(property="og:image:type" content="image/png")
       assert html =~ ~s(name="twitter:card" content="summary_large_image")
       assert html =~ ~s(<link) and html =~ ~s(rel="canonical")
-    end
-
-    test "typing text updates the QR code preview", %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/")
-
-      html =
-        view
-        |> form("#qr-form", qr: %{text: "hello world"})
-        |> render_change()
-
-      assert html =~ "<svg"
-      assert has_element?(view, "#qr-preview svg")
-    end
-
-    test "clearing text hides the QR preview", %{conn: conn} do
-      {:ok, view, _html} = live(conn, ~p"/")
-
-      view
-      |> form("#qr-form", qr: %{text: ""})
-      |> render_change()
-
-      refute has_element?(view, "#qr-preview")
     end
   end
 

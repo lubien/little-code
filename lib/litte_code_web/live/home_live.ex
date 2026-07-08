@@ -8,7 +8,6 @@ defmodule LitteCodeWeb.HomeLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    qr_form = to_form(%{"text" => @default_qr_text}, as: :qr)
     shorten_form = to_form(Links.change_link(), as: :link)
 
     peer_ip =
@@ -32,7 +31,6 @@ defmodule LitteCodeWeb.HomeLive do
      |> assign(:tab, :qr)
      |> assign(:qr_text, @default_qr_text)
      |> assign(:qr_svg, QRCode.to_svg(@default_qr_text))
-     |> assign(:qr_form, qr_form)
      |> assign(:shorten_form, shorten_form)
      |> assign(:shortened, nil)
      |> assign(:peer_ip, peer_ip)
@@ -62,14 +60,6 @@ defmodule LitteCodeWeb.HomeLive do
   @impl true
   def handle_event("switch_tab", %{"tab" => tab}, socket) do
     {:noreply, push_patch(socket, to: ~p"/?tab=#{tab}")}
-  end
-
-  def handle_event("qr_update", %{"qr" => %{"text" => text}}, socket) do
-    {:noreply,
-     socket
-     |> assign(:qr_text, text)
-     |> assign(:qr_svg, QRCode.to_svg(text))
-     |> assign(:qr_form, to_form(%{"text" => text}, as: :qr))}
   end
 
   def handle_event("shorten_validate", %{"link" => params}, socket) do
@@ -209,30 +199,63 @@ defmodule LitteCodeWeb.HomeLive do
           aria-labelledby="tab-qr"
           class="card bg-base-100 border border-base-200 shadow-sm"
         >
-          <div class="card-body">
-            <.form for={@qr_form} id="qr-form" phx-change="qr_update" autocomplete="off">
-              <.input
-                field={@qr_form[:text]}
+          <div
+            class="card-body"
+            id="qr-code-generator"
+            phx-hook="QRPreview"
+            data-qr-input="qr-text-input"
+          >
+            <div class="fieldset mb-2">
+              <label for="qr-text-input" class="label mb-1">
+                {gettext("Any text or URL")}
+              </label>
+              <%!--
+                Plain <input> (no LiveView form) so:
+                  * Enter doesn't try to submit anywhere.
+                  * `autocorrect` / `autocapitalize` / `spellcheck` reliably
+                    pass through and iOS Safari stops fighting the input.
+                LiveView is told not to touch this element via `phx-update`
+                so the value the user typed is never clobbered by a re-render.
+              --%>
+              <input
                 type="text"
-                label={gettext("Any text or URL")}
+                id="qr-text-input"
+                name="qr_text"
+                value={@qr_text}
                 placeholder="https://example.com"
-                phx-debounce="150"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                class="w-full input"
+                phx-update="ignore"
               />
-            </.form>
+            </div>
 
             <div class="mt-4 flex justify-center">
+              <%!--
+                `phx-update="ignore"` on the wrapper keeps LiveView from clobbering
+                the QR SVG that our JS hook writes in on every keystroke.
+              --%>
               <div
-                :if={@qr_svg}
-                id="qr-preview"
+                id="qr-preview-wrapper"
                 class="p-6 bg-white rounded-box shadow-inner border border-base-200 w-64 h-64 flex items-center justify-center transition-all"
+                phx-update="ignore"
               >
-                {Phoenix.HTML.raw(@qr_svg)}
-              </div>
-              <div
-                :if={is_nil(@qr_svg)}
-                class="p-6 bg-base-200 rounded-box w-64 h-64 flex items-center justify-center text-sm text-base-content/60"
-              >
-                {gettext("Type something to generate a QR code.")}
+                <div
+                  data-qr-preview
+                  aria-label={gettext("QR Code")}
+                  class="w-full h-full"
+                >
+                  {Phoenix.HTML.raw(@qr_svg)}
+                </div>
+                <div
+                  data-qr-empty
+                  hidden
+                  class="text-sm text-base-content/60 text-center"
+                >
+                  {gettext("Type something to generate a QR code.")}
+                </div>
               </div>
             </div>
           </div>
