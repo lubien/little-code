@@ -110,3 +110,7 @@ msgstr ""
 
 msgid "must be equal to %{number}"
 msgstr ""
+
+## Custom validation errors from LitteCode.Links.Link
+msgid "must be a valid http(s) URL"
+msgstr ""

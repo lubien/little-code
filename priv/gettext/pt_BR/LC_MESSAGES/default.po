@@ -21,8 +21,8 @@ msgstr "Ações"
 msgid "Any text or URL"
 msgstr "Qualquer texto ou URL"
 
-#: lib/litte_code_web/components/layouts.ex:199
-#: lib/litte_code_web/components/layouts.ex:214
+#: lib/litte_code_web/components/layouts.ex:211
+#: lib/litte_code_web/components/layouts.ex:226
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr "Tentando reconectar"
@@ -62,7 +62,7 @@ msgstr "Copiar link curto"
 msgid "I got pissed at QR Code sites so I built my own with no ads and no charges"
 msgstr "Eu fiquei puto com sites de QR Code, então fiz o meu próprio sem anúncios e sem cobrar nada"
 
-#: lib/litte_code_web/components/layouts.ex:140
+#: lib/litte_code_web/components/layouts.ex:152
 #, elixir-autogen, elixir-format
 msgid "Language"
 msgstr "Idioma"
@@ -72,7 +72,7 @@ msgstr "Idioma"
 msgid "Long URL"
 msgstr "URL longa"
 
-#: lib/litte_code_web/components/layouts.ex:106
+#: lib/litte_code_web/components/layouts.ex:107
 #, elixir-autogen, elixir-format
 msgid "Lubien on GitHub"
 msgstr "Lubien no GitHub"
@@ -127,7 +127,7 @@ msgstr "Encurte URLs e gere QR codes com um clique. Grátis, sem cadastro."
 msgid "Shortened! Copy your link below."
 msgstr "Encurtado! Copie seu link abaixo."
 
-#: lib/litte_code_web/components/layouts.ex:206
+#: lib/litte_code_web/components/layouts.ex:218
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr "Algo deu errado!"
@@ -147,7 +147,7 @@ msgstr "Ferramentas"
 msgid "Type something to generate a QR code."
 msgstr "Digite algo para gerar um QR code."
 
-#: lib/litte_code_web/components/layouts.ex:191
+#: lib/litte_code_web/components/layouts.ex:203
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr "Não conseguimos encontrar a internet"
@@ -191,3 +191,13 @@ msgstr "little-co.de — links minúsculos & QR codes"
 #, elixir-autogen, elixir-format
 msgid "using"
 msgstr "usando"
+
+#: lib/litte_code_web/components/layouts.ex:126
+#, elixir-autogen, elixir-format
+msgid "Source"
+msgstr "Código-fonte"
+
+#: lib/litte_code_web/components/layouts.ex:124
+#, elixir-autogen, elixir-format
+msgid "View source on GitHub"
+msgstr "Ver o código-fonte no GitHub"
