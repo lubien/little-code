@@ -1,5 +1,10 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-#
-# To ban all spiders from the entire site uncomment the next two lines:
-# User-agent: *
-# Disallow: /
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+# Allow the marketing home page and static assets.
+Allow: /
+# Short links redirect to arbitrary third-party URLs and should not be
+# crawled — they're for humans clicking links, not search indexes.
+Disallow: /l/
+
+Sitemap: https://little-co.de/sitemap.xml

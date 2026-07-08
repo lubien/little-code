@@ -53,12 +53,21 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  # Public-facing host/scheme/port. Defaults to the production domain so
+  # generated absolute URLs ("Copy" button, sitemap, OG tags, etc.) always
+  # point at little-co.de unless explicitly overridden.
+  host = System.get_env("PHX_HOST", "little-co.de")
+  scheme = System.get_env("PHX_SCHEME", "https")
+
+  url_port =
+    String.to_integer(
+      System.get_env("PHX_URL_PORT", if(scheme == "https", do: "443", else: "80"))
+    )
 
   config :litte_code, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :litte_code, LitteCodeWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
+    url: [host: host, port: url_port, scheme: scheme],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.

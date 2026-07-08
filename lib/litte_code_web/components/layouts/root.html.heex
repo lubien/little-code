@@ -4,7 +4,50 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="LitteCode" suffix=" · Phoenix Framework" phx-no-format>{assigns[:page_title]}</.live_title>
+    <.live_title default="little-co.de" suffix="" phx-no-format>{assigns[:page_title]}</.live_title>
+
+    <%!-- SEO --%>
+    <meta
+      name="description"
+      content={
+        assigns[:page_description] ||
+          "Tiny links and pretty QR codes. A free, no-signup URL shortener and QR code generator."
+      }
+    />
+    <link rel="canonical" href={LitteCodeWeb.Endpoint.url() <> (assigns[:current_path] || "/")} />
+
+    <%!-- Open Graph --%>
+    <meta property="og:site_name" content="little-co.de" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={assigns[:page_title] || "little-co.de"} />
+    <meta
+      property="og:description"
+      content={
+        assigns[:page_description] ||
+          "Tiny links and pretty QR codes. A free, no-signup URL shortener and QR code generator."
+      }
+    />
+    <meta
+      property="og:url"
+      content={LitteCodeWeb.Endpoint.url() <> (assigns[:current_path] || "/")}
+    />
+    <meta property="og:image" content={LitteCodeWeb.Endpoint.url() <> "/images/og-image.png"} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="little-co.de — tiny links and pretty QR codes" />
+
+    <%!-- Twitter --%>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={assigns[:page_title] || "little-co.de"} />
+    <meta
+      name="twitter:description"
+      content={assigns[:page_description] || "Tiny links and pretty QR codes."}
+    />
+    <meta name="twitter:image" content={LitteCodeWeb.Endpoint.url() <> "/images/og-image.png"} />
+
+    <meta name="theme-color" content="#0f172a" />
+
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
@@ -27,7 +70,7 @@
           setTheme(localStorage.getItem("phx:theme") || "system");
         }
         window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
-        
+
         window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
 
         matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {

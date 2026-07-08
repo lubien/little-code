@@ -17,7 +17,9 @@ defmodule LitteCodeWeb.Router do
   scope "/", LitteCodeWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :index
+
+    get "/l/:hash", LinkController, :show
   end
 
   # Other scopes may use custom stacks.
