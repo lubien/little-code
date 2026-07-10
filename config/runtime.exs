@@ -27,7 +27,18 @@ config :litte_code, LitteCodeWeb.Endpoint,
 # unlocks custom slugs (`?admin=<key>` on the form / API). Leave it
 # unset (or blank) to disable the feature entirely — no query string
 # combination will accept a custom slug.
-config :litte_code, :admin_key, System.get_env("ADMIN_KEY")
+#
+# In dev we fall back to "admin" when nothing is set so you can play
+# with slugs without exporting an env var. Test remains disabled by
+# default (each test overrides it explicitly). Prod always requires
+# ADMIN_KEY to be set explicitly — no dev shortcut leaks into it.
+admin_key =
+  case System.get_env("ADMIN_KEY") do
+    nil -> if config_env() == :dev, do: "admin"
+    value -> value
+  end
+
+config :litte_code, :admin_key, admin_key
 
 if config_env() == :prod do
   database_url =
