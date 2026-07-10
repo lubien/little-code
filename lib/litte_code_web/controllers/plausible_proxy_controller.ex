@@ -146,14 +146,14 @@ defmodule LitteCodeWeb.PlausibleProxyController do
   end
 
   defp forwarded_for(conn) do
-    # Preserve any existing X-Forwarded-For chain and append this hop's
-    # peer address so Plausible still gets the original client.
-    existing = req_header(conn, "x-forwarded-for", "")
-    peer = conn.remote_ip |> :inet.ntoa() |> to_string()
-
-    case existing do
-      "" -> peer
-      chain -> chain <> ", " <> peer
+    # `conn.remote_ip` is already the real client IP (RemoteIp rewrites
+    # it from `Fly-Client-IP` in the endpoint pipeline). We forward the
+    # existing X-Forwarded-For chain verbatim so Plausible can still see
+    # any hops we don't know about, and fall back to `conn.remote_ip`
+    # when there is no chain at all (e.g. in local dev).
+    case req_header(conn, "x-forwarded-for", "") do
+      "" -> conn.remote_ip |> :inet.ntoa() |> to_string()
+      chain -> chain
     end
   end
 

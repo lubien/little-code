@@ -12,8 +12,8 @@ defmodule LitteCodeWeb.Endpoint do
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [:peer_data, session: @session_options]],
-    longpoll: [connect_info: [:peer_data, session: @session_options]]
+    websocket: [connect_info: [:peer_data, :x_headers, session: @session_options]],
+    longpoll: [connect_info: [:peer_data, :x_headers, session: @session_options]]
 
   # Redirect off-canonical hostnames to `PHX_HOST` in prod (no-op in dev/test).
   # Placed before Plug.Static so static assets are only served on the canonical host.
@@ -46,6 +46,15 @@ defmodule LitteCodeWeb.Endpoint do
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+
+  # Behind Fly.io's proxy, `conn.remote_ip` is Fly's internal 6PN address
+  # unless we rewrite it from the forwarded headers Fly injects. This must
+  # run *before* PlugAttack so its per-IP throttles see the real client.
+  #
+  # Fly headers we trust:
+  #   * `Fly-Client-IP`  — single value, always the true client.
+  #   * `X-Forwarded-For` — standard chain (fallback).
+  plug RemoteIp, headers: ["fly-client-ip", "x-forwarded-for"]
 
   plug LitteCodeWeb.Plugs.Attack
 

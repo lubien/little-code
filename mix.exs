@@ -67,7 +67,8 @@ defmodule LitteCode.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:eqrcode, "~> 0.2.1"},
-      {:plug_attack, "~> 0.4.3"}
+      {:plug_attack, "~> 0.4.3"},
+      {:remote_ip, "~> 1.2"}
     ]
   end
 
