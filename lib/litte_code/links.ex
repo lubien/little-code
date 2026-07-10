@@ -16,21 +16,35 @@ defmodule LitteCode.Links do
 
   @doc """
   Returns a changeset for building a new link — handy for form rendering.
+  Pass `admin?: true` to expose the `:slug` field.
   """
-  def change_link(%Link{} = link \\ %Link{}, attrs \\ %{}) do
-    Link.changeset(link, attrs)
+  def change_link(%Link{} = link \\ %Link{}, attrs \\ %{}, opts \\ []) do
+    if Keyword.get(opts, :admin?, false) do
+      Link.admin_changeset(link, attrs)
+    else
+      Link.changeset(link, attrs)
+    end
   end
 
   @doc """
   Creates a shortened link, generating a unique hash for it.
 
-  The hash starts at #{@initial_length} characters and grows on collisions.
-  """
-  def create_link(attrs) do
-    changeset = Link.changeset(%Link{}, attrs)
+  Options:
+    * `:admin?` — when `true`, the `slug` field is accepted and validated.
+      When `false` (default), any submitted slug is silently ignored.
 
-    with {:ok, url} <- Ecto.Changeset.apply_action(changeset, :insert) do
-      insert_with_unique_hash(url, @initial_length, 0)
+  Returns `{:ok, link}` on success, or `{:error, %Ecto.Changeset{}}` on
+  validation failure. Returns `{:error, :hash_exhausted}` in the (nearly
+  impossible) case of running out of hash space.
+  """
+  def create_link(attrs, opts \\ []) do
+    admin? = Keyword.get(opts, :admin?, false)
+
+    changeset =
+      if admin?, do: Link.admin_changeset(%Link{}, attrs), else: Link.changeset(%Link{}, attrs)
+
+    with {:ok, applied} <- Ecto.Changeset.apply_action(changeset, :insert) do
+      insert_with_unique_hash(applied, @initial_length, 0)
     end
   end
 
@@ -47,18 +61,23 @@ defmodule LitteCode.Links do
     hash = generate_hash(length)
 
     %Link{}
-    |> Ecto.Changeset.change(url: link.url, hash: hash)
+    |> Ecto.Changeset.change(url: link.url, hash: hash, slug: link.slug)
     |> Ecto.Changeset.unique_constraint(:hash)
+    |> Ecto.Changeset.unique_constraint(:slug,
+      name: :links_slug_index,
+      message: "is already taken"
+    )
     |> Repo.insert()
     |> case do
       {:ok, link} ->
         {:ok, link}
 
       {:error, changeset} ->
-        if hash_taken?(changeset) do
-          insert_with_unique_hash(link, length, attempt + 1)
-        else
-          {:error, changeset}
+        cond do
+          hash_taken?(changeset) -> insert_with_unique_hash(link, length, attempt + 1)
+          # Bubble slug collisions back as a normal changeset error so the
+          # LiveView / API can render a nice "slug already taken" message.
+          true -> {:error, changeset}
         end
     end
   end
@@ -82,6 +101,15 @@ defmodule LitteCode.Links do
   end
 
   def get_by_hash(_), do: nil
+
+  @doc """
+  Fetches a link by its (custom) slug. Returns `nil` if not found.
+  """
+  def get_by_slug(slug) when is_binary(slug) do
+    Repo.get_by(Link, slug: slug)
+  end
+
+  def get_by_slug(_), do: nil
 
   @doc """
   Atomically increments the view counter for a link.

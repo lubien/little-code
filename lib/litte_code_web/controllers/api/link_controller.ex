@@ -24,16 +24,26 @@ defmodule LitteCodeWeb.Api.LinkController do
   use LitteCodeWeb, :controller
 
   alias LitteCode.Links
+  alias LitteCodeWeb.AdminAuth
 
   # `POST /api/links`
   def create(conn, params) do
-    attrs = %{"url" => Map.get(params, "url")}
+    admin? = AdminAuth.matches?(admin_param(conn, params))
 
-    case Links.create_link(attrs) do
+    attrs =
+      if admin? do
+        %{"url" => Map.get(params, "url"), "slug" => Map.get(params, "slug")}
+      else
+        # Silently drop any submitted slug for non-admins — same behavior
+        # as the LiveView form.
+        %{"url" => Map.get(params, "url")}
+      end
+
+    case Links.create_link(attrs, admin?: admin?) do
       {:ok, link} ->
         conn
         |> put_status(:created)
-        |> put_resp_header("location", short_url(link.hash))
+        |> put_resp_header("location", short_url(link))
         |> render(:show, link: link)
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -54,9 +64,18 @@ defmodule LitteCodeWeb.Api.LinkController do
     end
   end
 
-  defp short_url(hash) do
-    LitteCodeWeb.Endpoint.url() <> "/l/" <> hash
+  defp short_url(%LitteCode.Links.Link{slug: slug, hash: hash}) do
+    base = LitteCodeWeb.Endpoint.url()
+    if slug, do: base <> "/c/" <> slug, else: base <> "/l/" <> hash
   end
+
+  # Admin key can come from `?admin=` (query string) or the body param
+  # of the same name — whichever the client finds convenient.
+  defp admin_param(_conn, params) when is_map(params) do
+    Map.get(params, "admin")
+  end
+
+  defp admin_param(_conn, _params), do: nil
 
   defp translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->

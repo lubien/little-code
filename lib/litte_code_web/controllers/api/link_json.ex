@@ -7,8 +7,9 @@ defmodule LitteCodeWeb.Api.LinkJSON do
     %{
       data: %{
         hash: link.hash,
+        slug: link.slug,
         url: link.url,
-        short_url: LitteCodeWeb.Endpoint.url() <> "/l/" <> link.hash,
+        short_url: short_url(link),
         views: link.views,
         created_at: link.inserted_at
       }
@@ -16,12 +17,14 @@ defmodule LitteCodeWeb.Api.LinkJSON do
   end
 
   def error(%{error: error} = assigns) do
-    payload =
-      assigns
-      |> Map.take([:message, :details])
-      |> Map.reject(fn {_k, v} -> is_nil(v) end)
-      |> Map.put(:error, error)
+    assigns
+    |> Map.take([:message, :details])
+    |> Map.reject(fn {_k, v} -> is_nil(v) end)
+    |> Map.put(:error, error)
+  end
 
-    payload
+  defp short_url(%Link{slug: slug, hash: hash}) do
+    base = LitteCodeWeb.Endpoint.url()
+    if slug, do: base <> "/c/" <> slug, else: base <> "/l/" <> hash
   end
 end

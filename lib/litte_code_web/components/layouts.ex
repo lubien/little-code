@@ -63,6 +63,12 @@ defmodule LitteCodeWeb.Layouts do
           </a>
         </div>
         <div class="flex-none flex items-center gap-2">
+          <a
+            href="/docs"
+            class="link link-hover text-sm font-medium text-base-content/70 hover:text-base-content px-2"
+          >
+            {gettext("API")}
+          </a>
           <.language_switcher current_locale={@locale} current_path={@current_path} />
           <.theme_toggle />
         </div>

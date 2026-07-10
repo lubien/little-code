@@ -99,6 +99,67 @@ defmodule LitteCodeWeb.HomeLiveTest do
     end
   end
 
+  describe "admin-only slug field" do
+    setup do
+      original = Application.get_env(:litte_code, :admin_key)
+      Application.put_env(:litte_code, :admin_key, "s3cret")
+      on_exit(fn -> Application.put_env(:litte_code, :admin_key, original) end)
+      :ok
+    end
+
+    test "hidden without ?admin=", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?tab=shorten")
+      refute has_element?(view, "#link_slug")
+    end
+
+    test "hidden with wrong ?admin=", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?tab=shorten&admin=wrong")
+      refute has_element?(view, "#link_slug")
+    end
+
+    test "shown with correct ?admin=", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?tab=shorten&admin=s3cret")
+      assert has_element?(view, "#link_slug")
+    end
+
+    test "hidden when the server has ADMIN_KEY unset even if provided", %{conn: conn} do
+      Application.put_env(:litte_code, :admin_key, nil)
+      {:ok, view, _html} = live(conn, ~p"/?tab=shorten&admin=s3cret")
+      refute has_element?(view, "#link_slug")
+    end
+
+    test "non-admin submission with a slug silently drops it", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?tab=shorten")
+      %{token: token, question: q} = Captcha.new()
+
+      render_hook(view, "shorten_submit", %{
+        "link" => %{"url" => "https://example.com", "slug" => "custom"},
+        "captcha_token" => token,
+        "captcha_answer" => solve_captcha(q)
+      })
+
+      [link] = LitteCode.Repo.all(LitteCode.Links.Link)
+      assert link.slug == nil
+    end
+
+    test "admin submission with a slug persists it and links to /c/slug", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?tab=shorten&admin=s3cret")
+      %{token: token, question: q} = Captcha.new()
+
+      render_hook(view, "shorten_submit", %{
+        "link" => %{"url" => "https://example.com", "slug" => "summer-sale"},
+        "captcha_token" => token,
+        "captcha_answer" => solve_captcha(q)
+      })
+
+      html = render(view)
+      assert html =~ "/c/summer-sale"
+
+      [link] = LitteCode.Repo.all(LitteCode.Links.Link)
+      assert link.slug == "summer-sale"
+    end
+  end
+
   describe "shorten tab" do
     test "switching to shorten tab reveals the shortener form", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/?tab=shorten")

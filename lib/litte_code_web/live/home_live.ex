@@ -2,13 +2,13 @@ defmodule LitteCodeWeb.HomeLive do
   use LitteCodeWeb, :live_view
 
   alias LitteCode.{Captcha, Links, QRCode}
-  alias LitteCodeWeb.{ClientIp, RateLimit}
+  alias LitteCodeWeb.{AdminAuth, ClientIp, RateLimit}
 
   @default_qr_text "https://little-co.de"
 
   @impl true
   def mount(_params, _session, socket) do
-    shorten_form = to_form(Links.change_link(), as: :link)
+    shorten_form = to_form(Links.change_link(%LitteCode.Links.Link{}, %{}), as: :link)
 
     # `ClientIp.for_socket/1` reads Fly.io's `Fly-Client-IP` /
     # `X-Forwarded-For` off the WebSocket upgrade request so the shorten
@@ -24,6 +24,8 @@ defmodule LitteCodeWeb.HomeLive do
      )
      |> assign(:current_path, "/")
      |> assign(:tab, :qr)
+     |> assign(:admin?, false)
+     |> assign(:admin_key, nil)
      |> assign(:qr_text, @default_qr_text)
      |> assign(:qr_svg, QRCode.to_svg(@default_qr_text))
      |> assign(:shorten_form, shorten_form)
@@ -40,27 +42,52 @@ defmodule LitteCodeWeb.HomeLive do
         _ -> :qr
       end
 
-    current_path =
-      case tab do
-        :shorten -> "/?tab=shorten"
-        :qr -> "/"
-      end
+    admin? = AdminAuth.matches?(params["admin"])
+    admin_key = if admin?, do: params["admin"], else: nil
+
+    current_path = build_current_path(tab, admin_key)
+
+    # If the admin flips on/off, rebuild the form so the slug field is
+    # exposed (or scrubbed) via the right changeset.
+    shorten_form =
+      %LitteCode.Links.Link{}
+      |> Links.change_link(%{}, admin?: admin?)
+      |> to_form(as: :link)
 
     {:noreply,
      socket
      |> assign(:tab, tab)
-     |> assign(:current_path, current_path)}
+     |> assign(:current_path, current_path)
+     |> assign(:admin?, admin?)
+     |> assign(:admin_key, admin_key)
+     |> assign(:shorten_form, shorten_form)}
   end
+
+  defp build_current_path(tab, admin_key) do
+    query =
+      %{}
+      |> maybe_put(:tab, if(tab == :shorten, do: "shorten"))
+      |> maybe_put(:admin, admin_key)
+
+    case URI.encode_query(query) do
+      "" -> "/"
+      qs -> "/?" <> qs
+    end
+  end
+
+  defp maybe_put(map, _key, nil), do: map
+  defp maybe_put(map, key, value), do: Map.put(map, key, value)
 
   @impl true
   def handle_event("switch_tab", %{"tab" => tab}, socket) do
-    {:noreply, push_patch(socket, to: ~p"/?tab=#{tab}")}
+    to = build_current_path(String.to_atom(tab), socket.assigns.admin_key)
+    {:noreply, push_patch(socket, to: to)}
   end
 
   def handle_event("shorten_validate", %{"link" => params}, socket) do
     form =
       %LitteCode.Links.Link{}
-      |> Links.change_link(params)
+      |> Links.change_link(params, admin?: socket.assigns.admin?)
       |> Map.put(:action, :validate)
       |> to_form(as: :link)
 
@@ -73,14 +100,24 @@ defmodule LitteCodeWeb.HomeLive do
     captcha_token = Map.get(params, "captcha_token", "")
     captcha_answer = Map.get(params, "captcha_answer", "")
 
+    admin? = socket.assigns.admin?
+
+    # Silently strip slug for non-admins so a browser DevTools user can't
+    # sneak one in by editing the form manually.
+    link_params = if admin?, do: link_params, else: Map.delete(link_params, "slug")
+
     with :ok <- check_rate_limit(socket),
          :ok <- check_honeypot(honeypot),
          :ok <- Captcha.verify(captcha_token, captcha_answer),
-         {:ok, link} <- Links.create_link(link_params) do
+         {:ok, link} <- Links.create_link(link_params, admin?: admin?) do
       {:noreply,
        socket
        |> assign(:shortened, link)
-       |> assign(:shorten_form, to_form(Links.change_link(), as: :link))
+       |> assign(
+         :shorten_form,
+         Links.change_link(%LitteCode.Links.Link{}, %{}, admin?: admin?)
+         |> to_form(as: :link)
+       )
        |> assign_new_captcha()
        |> put_flash(:info, gettext("Shortened! Copy your link below."))}
     else
@@ -318,6 +355,32 @@ defmodule LitteCodeWeb.HomeLive do
                 data-form-type="other"
               />
 
+              <%!--
+                Custom slug — only rendered when the request carries a
+                valid `?admin=` query param. Non-admin visitors never see
+                this input; even if they craft a submission the LiveView
+                strips `slug` before hitting the context.
+              --%>
+              <div :if={@admin?} class="mt-2">
+                <.input
+                  field={@shorten_form[:slug]}
+                  type="text"
+                  label={gettext("Custom slug (optional)")}
+                  placeholder="my-cool-link"
+                  autocomplete="off"
+                  autocorrect="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  data-1p-ignore="true"
+                  data-lpignore="true"
+                  data-bwignore="true"
+                  data-form-type="other"
+                />
+                <p class="text-xs text-base-content/60 mt-1">
+                  {gettext("Lowercase letters, digits, and dashes. 2–50 characters.")}
+                </p>
+              </div>
+
               <%!-- Honeypot: real users won't see or fill this. --%>
               <div class="absolute -left-[9999px]" aria-hidden="true">
                 <label>
@@ -382,19 +445,19 @@ defmodule LitteCodeWeb.HomeLive do
                 <div class="flex items-center gap-2">
                   <a
                     id="shortened-link"
-                    href={short_url(@shortened.hash)}
+                    href={short_url(@shortened)}
                     class="font-mono text-base-content underline break-all"
                     target="_blank"
                     rel="noopener"
                   >
-                    {display_short_url(@shortened.hash)}
+                    {display_short_url(@shortened)}
                   </a>
                   <%!-- Hidden for now while we figure out cross-browser clipboard support. --%>
                   <button
                     type="button"
                     id="copy-shortened"
                     phx-hook=".CopyToClipboard"
-                    data-copy={short_url(@shortened.hash)}
+                    data-copy={short_url(@shortened)}
                     data-copied-label={gettext("Copied!")}
                     class="btn btn-ghost btn-sm gap-1"
                     aria-label={gettext("Copy short link")}
@@ -432,15 +495,17 @@ defmodule LitteCodeWeb.HomeLive do
     """
   end
 
-  defp short_url(hash) do
-    LitteCodeWeb.Endpoint.url() <> "/l/" <> hash
+  defp short_url(%LitteCode.Links.Link{slug: slug, hash: hash}) do
+    base = LitteCodeWeb.Endpoint.url()
+    if slug, do: base <> "/c/" <> slug, else: base <> "/l/" <> hash
   end
 
-  # Display URL as "little-co.de/l/HASH" instead of the full https://... prefix
-  # for a cleaner look, regardless of the configured URL scheme.
-  defp display_short_url(hash) do
+  # Display URL as "little-co.de/l/HASH" (or /c/SLUG) instead of the full
+  # https:// prefix for a cleaner look, regardless of the configured scheme.
+  defp display_short_url(%LitteCode.Links.Link{slug: slug, hash: hash}) do
     uri = URI.parse(LitteCodeWeb.Endpoint.url())
     host = uri.host || "little-co.de"
-    "#{host}/l/#{hash}"
+    segment = if slug, do: "c/#{slug}", else: "l/#{hash}"
+    "#{host}/#{segment}"
   end
 end

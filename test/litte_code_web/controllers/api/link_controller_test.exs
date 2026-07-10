@@ -7,7 +7,14 @@ defmodule LitteCodeWeb.Api.LinkControllerTest do
 
   setup do
     PlugAttack.Storage.Ets.clean(@storage)
-    on_exit(fn -> PlugAttack.Storage.Ets.clean(@storage) end)
+    original_key = Application.get_env(:litte_code, :admin_key)
+    Application.put_env(:litte_code, :admin_key, "s3cret")
+
+    on_exit(fn ->
+      PlugAttack.Storage.Ets.clean(@storage)
+      Application.put_env(:litte_code, :admin_key, original_key)
+    end)
+
     :ok
   end
 
@@ -75,6 +82,99 @@ defmodule LitteCodeWeb.Api.LinkControllerTest do
 
       assert %LitteCode.Links.Link{url: "https://example.com/persisted"} =
                LitteCode.Links.get_by_hash(hash)
+    end
+
+    test "silently drops slug when no admin key is provided", %{conn: conn} do
+      conn =
+        post_json(conn, ~p"/api/links", %{"url" => "https://example.com", "slug" => "custom"})
+
+      %{"data" => %{"slug" => slug, "short_url" => short_url}} = json_response(conn, 201)
+
+      assert slug == nil
+      # Short URL falls back to the /l/hash form.
+      assert short_url =~ "/l/"
+      refute short_url =~ "/c/"
+    end
+
+    test "silently drops slug when admin key is wrong", %{conn: conn} do
+      conn =
+        post_json(conn, ~p"/api/links?admin=WRONG", %{
+          "url" => "https://example.com",
+          "slug" => "custom"
+        })
+
+      %{"data" => %{"slug" => slug}} = json_response(conn, 201)
+      assert slug == nil
+    end
+
+    test "accepts slug when admin key matches, short_url uses /c/slug", %{conn: conn} do
+      conn =
+        post_json(conn, ~p"/api/links?admin=s3cret", %{
+          "url" => "https://example.com",
+          "slug" => "summer-sale"
+        })
+
+      %{"data" => %{"slug" => "summer-sale", "short_url" => short_url}} =
+        json_response(conn, 201)
+
+      assert short_url =~ "/c/summer-sale"
+
+      # Location header also uses the slug URL.
+      assert [^short_url] = get_resp_header(conn, "location")
+    end
+
+    test "returns 422 for an invalid slug even with a valid admin key", %{conn: conn} do
+      conn =
+        post_json(conn, ~p"/api/links?admin=s3cret", %{
+          "url" => "https://example.com",
+          "slug" => "Bad_Slug!"
+        })
+
+      assert %{"error" => "validation_failed", "details" => %{"slug" => [_ | _]}} =
+               json_response(conn, 422)
+    end
+
+    test "returns 422 for a taken slug", %{conn: conn} do
+      {:ok, _} =
+        LitteCode.Links.create_link(
+          %{"url" => "https://example.com/a", "slug" => "taken"},
+          admin?: true
+        )
+
+      conn =
+        post_json(conn, ~p"/api/links?admin=s3cret", %{
+          "url" => "https://example.com/b",
+          "slug" => "taken"
+        })
+
+      assert %{"error" => "validation_failed", "details" => %{"slug" => [_ | _]}} =
+               json_response(conn, 422)
+    end
+
+    test "ignores admin key when the server has ADMIN_KEY unset", %{conn: conn} do
+      Application.put_env(:litte_code, :admin_key, nil)
+
+      conn =
+        post_json(conn, ~p"/api/links?admin=s3cret", %{
+          "url" => "https://example.com",
+          "slug" => "custom"
+        })
+
+      %{"data" => %{"slug" => slug}} = json_response(conn, 201)
+      assert slug == nil
+    end
+
+    test "ignores admin key when the server has ADMIN_KEY blank", %{conn: conn} do
+      Application.put_env(:litte_code, :admin_key, "   ")
+
+      conn =
+        post_json(conn, ~p"/api/links?admin=", %{
+          "url" => "https://example.com",
+          "slug" => "custom"
+        })
+
+      %{"data" => %{"slug" => slug}} = json_response(conn, 201)
+      assert slug == nil
     end
 
     test "enforces the 30/min rate limit and 429s with Retry-After", %{conn: _conn} do

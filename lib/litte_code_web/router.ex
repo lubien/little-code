@@ -20,9 +20,11 @@ defmodule LitteCodeWeb.Router do
 
     live_session :default, on_mount: {LitteCodeWeb.LiveHooks, :set_locale} do
       live "/", HomeLive, :index
+      live "/docs", DocsLive, :index
     end
 
     get "/l/:hash", LinkController, :show
+    get "/c/:slug", LinkController, :show_slug
     put "/locale/:locale", LocaleController, :update
     post "/locale/:locale", LocaleController, :update
   end

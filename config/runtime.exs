@@ -23,6 +23,12 @@ end
 config :litte_code, LitteCodeWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+# Optional server-wide admin key. When set to a non-blank value it
+# unlocks custom slugs (`?admin=<key>` on the form / API). Leave it
+# unset (or blank) to disable the feature entirely — no query string
+# combination will accept a custom slug.
+config :litte_code, :admin_key, System.get_env("ADMIN_KEY")
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
