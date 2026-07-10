@@ -37,6 +37,14 @@ defmodule LitteCodeWeb.Router do
     get "/up", HealthController, :show
   end
 
+  # JSON API for programmatic link shortening.
+  # Uses the `:api` pipeline: JSON accepts, no CSRF, no session.
+  scope "/api", LitteCodeWeb.Api do
+    pipe_through :api
+
+    post "/links", LinkController, :create
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", LitteCodeWeb do
   #   pipe_through :api

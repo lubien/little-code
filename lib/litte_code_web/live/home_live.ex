@@ -2,7 +2,7 @@ defmodule LitteCodeWeb.HomeLive do
   use LitteCodeWeb, :live_view
 
   alias LitteCode.{Captcha, Links, QRCode}
-  alias LitteCodeWeb.RateLimit
+  alias LitteCodeWeb.{ClientIp, RateLimit}
 
   @default_qr_text "https://little-co.de"
 
@@ -10,15 +10,10 @@ defmodule LitteCodeWeb.HomeLive do
   def mount(_params, _session, socket) do
     shorten_form = to_form(Links.change_link(), as: :link)
 
-    peer_ip =
-      if connected?(socket) do
-        case get_connect_info(socket, :peer_data) do
-          %{address: ip} -> ip
-          _ -> {0, 0, 0, 0}
-        end
-      else
-        {0, 0, 0, 0}
-      end
+    # `ClientIp.for_socket/1` reads Fly.io's `Fly-Client-IP` /
+    # `X-Forwarded-For` off the WebSocket upgrade request so the shorten
+    # rate limit throttles the real client, not Fly's proxy pool.
+    peer_ip = ClientIp.for_socket(socket)
 
     {:ok,
      socket

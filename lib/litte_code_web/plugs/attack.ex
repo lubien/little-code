@@ -2,10 +2,14 @@ defmodule LitteCodeWeb.Plugs.Attack do
   @moduledoc """
   Rate-limiting and abuse prevention using `PlugAttack`.
 
-  * Every IP is capped at 60 requests / minute across the whole site.
-  * Requests aimed at creating a shortened link are further capped at
-    10 per minute per IP — that path is the expensive one we want to
-    protect from bots.
+  * `/up` is allow-listed — Fly.io health checks never count.
+  * `POST /api/links` is capped at 30 shortens/min/IP so the JSON API
+    can't be used to flood the database.
+  * Every other request is capped at 60/min/IP.
+
+  Responses include `X-RateLimit-Limit`, `X-RateLimit-Remaining`,
+  `X-RateLimit-Reset`, and (on 429s) `Retry-After` headers so well-behaved
+  API clients can back off.
   """
 
   use PlugAttack
@@ -21,22 +25,26 @@ defmodule LitteCodeWeb.Plugs.Attack do
     allow(conn.request_path == "/up")
   end
 
+  # API create bucket: 30 shortens/min/IP. Bots hitting the JSON API get
+  # cut off long before they can build up a link database. Matched before
+  # the generic per-IP throttle so it also acts as a hard cap on this
+  # specific route.
+  rule "throttle api link creates", conn do
+    if conn.method == "POST" and conn.request_path == "/api/links" do
+      throttle({:api_links_create, conn.remote_ip},
+        period: 60_000,
+        limit: 30,
+        storage: {PlugAttack.Storage.Ets, LitteCodeWeb.Plugs.Attack.Storage}
+      )
+    end
+  end
+
   rule "throttle by ip", conn do
     throttle(conn.remote_ip,
       period: 60_000,
       limit: 60,
       storage: {PlugAttack.Storage.Ets, LitteCodeWeb.Plugs.Attack.Storage}
     )
-  end
-
-  rule "throttle shorten submissions", conn do
-    if conn.method == "POST" and String.starts_with?(conn.request_path, "/shorten") do
-      throttle({:shorten, conn.remote_ip},
-        period: 60_000,
-        limit: 10,
-        storage: {PlugAttack.Storage.Ets, LitteCodeWeb.Plugs.Attack.Storage}
-      )
-    end
   end
 
   def allow_action(conn, {:throttle, data}, opts) do
@@ -59,12 +67,17 @@ defmodule LitteCodeWeb.Plugs.Attack do
     |> halt()
   end
 
+  # Adds the standard rate-limit trio plus a `Retry-After` (seconds
+  # until the current bucket resets) so well-behaved clients back off.
   defp add_throttling_headers(conn, data) do
-    reset = div(data[:expires_at], 1_000)
+    reset_ms = data[:expires_at]
+    reset_s = div(reset_ms, 1_000)
+    retry_after = max(div(reset_ms - System.system_time(:millisecond), 1_000), 0)
 
     conn
     |> put_resp_header("x-ratelimit-limit", to_string(data[:limit]))
     |> put_resp_header("x-ratelimit-remaining", to_string(data[:remaining]))
-    |> put_resp_header("x-ratelimit-reset", to_string(reset))
+    |> put_resp_header("x-ratelimit-reset", to_string(reset_s))
+    |> put_resp_header("retry-after", to_string(retry_after))
   end
 end
