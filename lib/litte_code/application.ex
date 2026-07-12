@@ -13,6 +13,7 @@ defmodule LitteCode.Application do
       {DNSCluster, query: Application.get_env(:litte_code, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: LitteCode.PubSub},
       {PlugAttack.Storage.Ets, name: LitteCodeWeb.Plugs.Attack.Storage, clean_period: 60_000},
+      LitteCode.Plausible,
       # Start a worker by calling: LitteCode.Worker.start_link(arg)
       # {LitteCode.Worker, arg},
       # Start to serve requests, typically the last entry

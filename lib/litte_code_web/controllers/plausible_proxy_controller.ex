@@ -7,9 +7,11 @@ defmodule LitteCodeWeb.PlausibleProxyController do
     * Analytics events are POSTed to our origin and forwarded server-side
       to the upstream Plausible instance.
 
-  Upstream host is configurable via
-  `config :litte_code, :plausible_proxy, upstream: "https://..."`,
-  which lets us swap it (or point tests at `Req.Test` / `Bypass`).
+  Upstream host and Req options come from
+  `config :litte_code, LitteCode.Plausible, upstream: "https://...",
+  req_options: [...]`. When `:upstream` is unset, every proxy route
+  responds `503 Service Unavailable` so an unconfigured instance never
+  accidentally exposes an open proxy.
   """
 
   use LitteCodeWeb, :controller
@@ -18,40 +20,53 @@ defmodule LitteCodeWeb.PlausibleProxyController do
 
   # Only proxy well-formed Plausible tracker filenames — prevents open
   # proxy abuse (`GET /js/../../etc/passwd`, request smuggling, etc.).
-  @script_regex ~r/^script(\.[a-z-]+)*\.js$/
+  #
+  # Covers both the classic `script.js` / `script.<variant>.js` layout
+  # and the newer per-site "personalized" scripts named like
+  # `pa-<token>-<version>.js`.
+  @script_regex ~r/^(script(\.[a-z-]+)*|pa-[A-Za-z0-9]+-\d+)\.js$/
 
   @doc """
   `GET /js/:filename` — fetches the Plausible tracker script and streams
   it back with the upstream's cache headers.
   """
   def script(conn, %{"filename" => filename}) do
-    if Regex.match?(@script_regex, filename) do
-      request = build_req() |> Req.merge(url: "/js/" <> filename)
+    cond do
+      not Regex.match?(@script_regex, filename) ->
+        send_resp(conn, 404, "")
 
-      case Req.get(request) do
-        {:ok, %Req.Response{status: 200} = resp} ->
-          # Use put_resp_header (not put_resp_content_type) so we don't
-          # double up the `; charset=utf-8` suffix that upstream already sets.
-          conn
-          |> put_resp_header(
-            "content-type",
-            header(resp, "content-type", "application/javascript; charset=utf-8")
-          )
-          |> put_resp_header(
-            "cache-control",
-            header(resp, "cache-control", "public, max-age=86400")
-          )
-          |> send_resp(200, resp.body)
+      is_nil(LitteCode.Plausible.upstream()) ->
+        send_resp(conn, 503, "// Plausible proxy is not configured on this server\n")
 
-        other ->
-          Logger.warning("Plausible script proxy failed: #{inspect(other)}")
+      true ->
+        proxy_script(conn, filename)
+    end
+  end
 
-          conn
-          |> put_resp_content_type("application/javascript")
-          |> send_resp(502, "// Plausible script upstream unavailable\n")
-      end
-    else
-      send_resp(conn, 404, "")
+  defp proxy_script(conn, filename) do
+    request = build_req() |> Req.merge(url: "/js/" <> filename)
+
+    case Req.get(request) do
+      {:ok, %Req.Response{status: 200} = resp} ->
+        # Use put_resp_header (not put_resp_content_type) so we don't
+        # double up the `; charset=utf-8` suffix that upstream already sets.
+        conn
+        |> put_resp_header(
+          "content-type",
+          header(resp, "content-type", "application/javascript; charset=utf-8")
+        )
+        |> put_resp_header(
+          "cache-control",
+          header(resp, "cache-control", "public, max-age=86400")
+        )
+        |> send_resp(200, resp.body)
+
+      other ->
+        Logger.warning("Plausible script proxy failed: #{inspect(other)}")
+
+        conn
+        |> put_resp_content_type("application/javascript")
+        |> send_resp(502, "// Plausible script upstream unavailable\n")
     end
   end
 
@@ -61,6 +76,15 @@ defmodule LitteCodeWeb.PlausibleProxyController do
   breakdowns keep working.
   """
   def event(conn, _params) do
+    if is_nil(LitteCode.Plausible.upstream()) do
+      # Silently accept and drop — never crash a beacon.
+      send_resp(conn, 202, "")
+    else
+      forward_event(conn)
+    end
+  end
+
+  defp forward_event(conn) do
     {body, content_type, conn} = fetch_request_body(conn)
 
     headers = [
@@ -91,9 +115,11 @@ defmodule LitteCodeWeb.PlausibleProxyController do
   # -- helpers ---------------------------------------------------------
 
   defp build_req do
+    plausible_cfg = Application.get_env(:litte_code, LitteCode.Plausible, [])
+
     opts =
-      Application.get_env(:litte_code, :plausible_proxy, [])
-      |> Keyword.put_new(:base_url, "https://devsnorte-plausible.fly.dev")
+      (plausible_cfg[:req_options] || [])
+      |> Keyword.put_new(:base_url, plausible_cfg[:upstream])
       |> Keyword.put_new(:receive_timeout, 5_000)
       |> Keyword.put_new(:connect_options, timeout: 3_000)
       |> Keyword.put_new(:decode_body, false)

@@ -90,3 +90,7 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Plausible analytics is opt-in via env vars — see `config/runtime.exs`
+# for the wiring. This section is intentionally left blank so the repo
+# doesn't bake in any specific upstream host.

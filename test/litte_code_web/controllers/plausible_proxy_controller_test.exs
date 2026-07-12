@@ -5,9 +5,21 @@ defmodule LitteCodeWeb.PlausibleProxyControllerTest do
   @stub_name :plausible_proxy_stub
 
   setup do
-    original = Application.get_env(:litte_code, :plausible_proxy, [])
-    Application.put_env(:litte_code, :plausible_proxy, plug: {Req.Test, @stub_name})
-    on_exit(fn -> Application.put_env(:litte_code, :plausible_proxy, original) end)
+    original = Application.get_env(:litte_code, LitteCode.Plausible)
+
+    Application.put_env(:litte_code, LitteCode.Plausible,
+      upstream: "https://plausible.test",
+      req_options: [plug: {Req.Test, @stub_name}]
+    )
+
+    on_exit(fn ->
+      if is_nil(original) do
+        Application.delete_env(:litte_code, LitteCode.Plausible)
+      else
+        Application.put_env(:litte_code, LitteCode.Plausible, original)
+      end
+    end)
+
     :ok
   end
 
@@ -34,6 +46,14 @@ defmodule LitteCodeWeb.PlausibleProxyControllerTest do
       # No upstream stub — we want to confirm we never even attempt the fetch.
       conn = get(conn, "/js/evil-payload.js")
       assert response(conn, 404)
+    end
+
+    test "returns 503 when Plausible is not configured at all", %{conn: conn} do
+      # Wipe the upstream so `LitteCode.Plausible.upstream/0` returns nil.
+      Application.put_env(:litte_code, LitteCode.Plausible, [])
+
+      conn = get(conn, ~p"/js/script.js")
+      assert response(conn, 503) =~ "not configured"
     end
 
     test "returns 502 when upstream is unreachable", %{conn: conn} do
@@ -114,6 +134,17 @@ defmodule LitteCodeWeb.PlausibleProxyControllerTest do
         conn
         |> put_req_header("content-type", "application/json")
         |> post(~p"/api/event", "")
+
+      assert response(conn, 202)
+    end
+
+    test "silently accepts and drops when Plausible is not configured", %{conn: conn} do
+      Application.put_env(:litte_code, LitteCode.Plausible, [])
+
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/event", Jason.encode!(%{"name" => "pageview"}))
 
       assert response(conn, 202)
     end

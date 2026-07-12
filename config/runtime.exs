@@ -40,6 +40,38 @@ admin_key =
 
 config :litte_code, :admin_key, admin_key
 
+# --- Plausible analytics ------------------------------------------------
+# All values are optional and default to nil, so the repo ships without
+# a hardcoded upstream. Each piece opts in independently:
+#
+#   PLAUSIBLE_UPSTREAM     Base URL of the Plausible instance. Enables
+#                          the reverse proxy (`GET /js/*.js`,
+#                          `POST /api/event`) and, by default, the
+#                          backend `Redirect` event tracking.
+#   PLAUSIBLE_SCRIPT_SRC   `src` attribute for the injected browser
+#                          `<script>` tag — typically a path on our
+#                          origin like `/js/pa-XXXX-1.js`. When unset,
+#                          no snippet is rendered in the page.
+#   PLAUSIBLE_DOMAIN       Site domain reported in backend events. When
+#                          unset in prod, falls back to `PHX_HOST`.
+#   PLAUSIBLE_EVENTS_URL   Overrides the derived events endpoint
+#                          (`<UPSTREAM>/api/event`). Rarely needed.
+#   PLAUSIBLE_DISABLED     Set to `1`/`true` to force all Plausible
+#                          integration off, ignoring the vars above.
+plausible_disabled? = System.get_env("PLAUSIBLE_DISABLED") in ~w(true 1)
+
+default_domain =
+  if config_env() == :prod, do: System.get_env("PHX_HOST", "little-co.de"), else: nil
+
+config :litte_code, LitteCode.Plausible,
+  script_src: unless(plausible_disabled?, do: System.get_env("PLAUSIBLE_SCRIPT_SRC")),
+  upstream: unless(plausible_disabled?, do: System.get_env("PLAUSIBLE_UPSTREAM")),
+  domain:
+    unless(plausible_disabled?,
+      do: System.get_env("PLAUSIBLE_DOMAIN") || default_domain
+    ),
+  events_url: unless(plausible_disabled?, do: System.get_env("PLAUSIBLE_EVENTS_URL"))
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

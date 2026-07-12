@@ -52,9 +52,20 @@
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
 
-    <%!-- Plausible analytics, reverse-proxied through our own origin. --%>
-    <script defer data-domain="little-co.de" data-api="/api/event" src="/js/script.js">
-    </script>
+    <%!-- Privacy-friendly analytics by Plausible, reverse-proxied through our own
+         origin. Only rendered when the server operator has configured a script src
+         via `config :litte_code, LitteCode.Plausible, script_src: "..."`. --%>
+    <%= if src = LitteCode.Plausible.script_src() do %>
+      <script async src={src}>
+      </script>
+      <script>
+        window.plausible = window.plausible || function () {
+          (plausible.q = plausible.q || []).push(arguments)
+        }
+        plausible.init = plausible.init || function (i) { plausible.o = i || {} }
+        plausible.init()
+      </script>
+    <% end %>
     <script>
       (() => {
         const systemTheme = () => matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

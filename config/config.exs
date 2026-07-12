@@ -18,6 +18,31 @@ config :litte_code, LitteCodeWeb.Gettext,
   default_locale: "en",
   locales: ["en", "pt_BR"]
 
+# Plausible analytics integration. Every value defaults to nil so the
+# codebase ships without any hardcoded upstream — wire up per-env via
+# env vars in `config/dev.exs` and `config/runtime.exs`.
+#
+#   * `:script_src`  — URL/path for the browser `<script>` tag. When
+#     nil, no Plausible snippet is rendered in the page. Typically set
+#     to a path served by our reverse proxy, e.g. `/js/pa-XXX-1.js`.
+#
+#   * `:upstream`    — base URL of the Plausible instance we're
+#     reverse-proxying (used by `LitteCodeWeb.PlausibleProxyController`
+#     to fetch `/js/*.js` and forward `POST /api/event`). When nil,
+#     the proxy routes return 503.
+#
+#   * `:domain`      — site domain reported in backend events
+#     (`LitteCode.Plausible.track/1`). When nil, backend tracking is a
+#     no-op.
+#
+#   * `:events_url`  — full URL for backend event POSTs. When nil but
+#     `:upstream` is set, defaults to `"#{upstream}/api/event"`.
+config :litte_code, LitteCode.Plausible,
+  script_src: nil,
+  upstream: nil,
+  domain: nil,
+  events_url: nil
+
 # Configure the endpoint
 config :litte_code, LitteCodeWeb.Endpoint,
   url: [host: "localhost"],
