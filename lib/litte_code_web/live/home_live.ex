@@ -268,6 +268,196 @@ defmodule LitteCodeWeb.HomeLive do
               />
             </div>
 
+            <%!--
+              Customize block. Marked `phx-update="ignore"` so LiveView
+              doesn't reset the color / file inputs the user just chose
+              on unrelated re-renders. Everything here is wired up by
+              the `QRPreview` JS hook.
+            --%>
+            <details
+              id="qr-customize"
+              class="mt-1 rounded-box border border-base-200 bg-base-200/40 group"
+              phx-update="ignore"
+            >
+              <summary class="cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden px-4 py-2 flex items-center justify-between text-sm font-medium">
+                <span class="inline-flex items-center gap-2">
+                  <.icon name="hero-swatch" class="size-4 opacity-70" />
+                  {gettext("Customize")}
+                </span>
+                <.icon
+                  name="hero-chevron-down"
+                  class="size-4 opacity-60 transition-transform group-open:rotate-180"
+                />
+              </summary>
+
+              <div class="px-4 pb-4 pt-1 space-y-4">
+                <%!-- Presets --%>
+                <div>
+                  <span class="text-xs font-medium block mb-2">{gettext("Presets")}</span>
+                  <div class="flex flex-wrap gap-2">
+                    <%= for preset <- qr_presets() do %>
+                      <button
+                        type="button"
+                        data-qr-preset={preset.key}
+                        aria-pressed="false"
+                        title={preset.label}
+                        class="group inline-flex flex-col items-center gap-1 text-xs rounded-lg p-1 hover:bg-base-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
+                      >
+                        <span
+                          class="block size-8 rounded-md border overflow-hidden shadow-sm"
+                          style={preset_swatch_style(preset)}
+                          aria-hidden="true"
+                        >
+                          <span
+                            class="block size-2/3 mt-1 mx-auto"
+                            style={"background-color: #{preset.fg};"}
+                          />
+                        </span>
+                        <span class="text-base-content/80 group-hover:text-base-content">
+                          {preset.label}
+                        </span>
+                      </button>
+                    <% end %>
+                  </div>
+                </div>
+
+                <%!-- Colors --%>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="text-xs font-medium">
+                    <span class="label">{gettext("Foreground")}</span>
+                    <input
+                      type="color"
+                      data-qr-fg
+                      value="#0f172a"
+                      class="w-full h-10 rounded-md border border-base-300 bg-base-100 cursor-pointer"
+                      aria-label={gettext("Foreground color")}
+                    />
+                  </label>
+                  <label class="text-xs font-medium">
+                    <span class="label">{gettext("Background")}</span>
+                    <input
+                      type="color"
+                      data-qr-bg
+                      value="#ffffff"
+                      class="w-full h-10 rounded-md border border-base-300 bg-base-100 cursor-pointer"
+                      aria-label={gettext("Background color")}
+                    />
+                  </label>
+                </div>
+
+                <%!-- Border color + width --%>
+                <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-3 items-end">
+                  <label class="text-xs font-medium">
+                    <span class="label">{gettext("Border")}</span>
+                    <input
+                      type="color"
+                      data-qr-border-color
+                      value="#0f172a"
+                      class="w-full h-10 rounded-md border border-base-300 bg-base-100 cursor-pointer"
+                      aria-label={gettext("Border color")}
+                    />
+                  </label>
+                  <label class="text-xs font-medium">
+                    <span class="label">{gettext("Border width")}</span>
+                    <input
+                      type="range"
+                      data-qr-border-width
+                      min="0"
+                      max="40"
+                      step="1"
+                      value="0"
+                      class="range range-primary range-sm w-full"
+                      aria-label={gettext("Border width (0 = no border)")}
+                    />
+                  </label>
+                </div>
+
+                <%!-- Radius --%>
+                <label class="text-xs font-medium block">
+                  <span class="label">{gettext("Corner radius")}</span>
+                  <input
+                    type="range"
+                    data-qr-radius
+                    min="0"
+                    max="50"
+                    step="1"
+                    value="0"
+                    class="range range-primary range-sm w-full"
+                    aria-label={gettext("Corner radius")}
+                  />
+                </label>
+
+                <div>
+                  <label class="text-xs font-medium block mb-1">
+                    {gettext("Center logo (optional)")}
+                  </label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      data-qr-logo
+                      class="file-input file-input-sm w-full"
+                      aria-label={gettext("Upload a logo to place in the center of the QR code")}
+                    />
+                    <button
+                      type="button"
+                      data-qr-logo-remove
+                      hidden
+                      class="btn btn-ghost btn-sm gap-1"
+                      aria-label={gettext("Remove logo")}
+                    >
+                      <.icon name="hero-x-mark" class="size-4" />
+                    </button>
+                  </div>
+                  <p class="text-xs text-base-content/60 mt-1">
+                    {gettext(
+                      "Never leaves your browser. PNG, JPG or SVG. Error correction is bumped to level H automatically."
+                    )}
+                  </p>
+
+                  <div class="mt-3 space-y-2">
+                    <label class="text-xs font-medium block">
+                      <span class="label">{gettext("Logo size")}</span>
+                      <%!-- Capped at 30% to stay within QR error-correction
+                            headroom (level H recovers ~30%). Anything larger
+                            starts occluding timing/alignment patterns and
+                            the code stops scanning reliably. --%>
+                      <input
+                        type="range"
+                        data-qr-logo-size
+                        min="10"
+                        max="30"
+                        step="1"
+                        value="22"
+                        class="range range-primary range-sm w-full"
+                        aria-label={gettext("Logo size (percent of the QR width)")}
+                      />
+                    </label>
+
+                    <label class="inline-flex items-center gap-2 text-xs cursor-pointer">
+                      <input
+                        type="checkbox"
+                        data-qr-logo-rounded
+                        class="checkbox checkbox-xs"
+                      />
+                      <span>{gettext("Rounded corners")}</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="flex justify-end">
+                  <button
+                    type="button"
+                    data-qr-reset
+                    class="btn btn-ghost btn-xs gap-1"
+                  >
+                    <.icon name="hero-arrow-uturn-left" class="size-3" />
+                    {gettext("Reset")}
+                  </button>
+                </div>
+              </div>
+            </details>
+
             <div class="mt-4 flex flex-col items-center gap-4">
               <%!--
                 `phx-update="ignore"` on the wrapper keeps LiveView from clobbering
@@ -493,6 +683,34 @@ defmodule LitteCodeWeb.HomeLive do
       </div>
     </Layouts.app>
     """
+  end
+
+  # QR customization presets. The hex values here mirror `PRESETS` in
+  # assets/js/hooks/qr_preview.js — kept in both places so the preview
+  # swatches match what the browser draws. The labels live on the server
+  # so they can be translated.
+  defp qr_presets do
+    [
+      %{key: "classic", label: gettext("Classic"), fg: "#0f172a", bg: "#ffffff", border: nil},
+      %{
+        key: "business",
+        label: gettext("Business"),
+        fg: "#0f172a",
+        bg: "#ffffff",
+        border: "#94a3b8"
+      },
+      %{key: "bubble", label: gettext("Bubble"), fg: "#1e3a8a", bg: "#dbeafe", border: "#1e3a8a"},
+      %{key: "lo-fi", label: gettext("Lo-fi"), fg: "#7c2d12", bg: "#fef3c7", border: nil},
+      %{key: "developer", label: gettext("Developer"), fg: "#22c55e", bg: "#0a0a0a", border: nil},
+      %{key: "sunset", label: gettext("Sunset"), fg: "#7c2d12", bg: "#fed7aa", border: "#7c2d12"},
+      %{key: "neon", label: gettext("Neon"), fg: "#f0abfc", bg: "#0f172a", border: "#22d3ee"},
+      %{key: "print", label: gettext("Print"), fg: "#000000", bg: "#ffffff", border: "#000000"}
+    ]
+  end
+
+  defp preset_swatch_style(preset) do
+    border = preset.border || "transparent"
+    "background-color: #{preset.bg}; border-color: #{border};"
   end
 
   defp short_url(%LitteCode.Links.Link{slug: slug, hash: hash}) do

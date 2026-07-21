@@ -37,23 +37,23 @@ msgstr "Resposta do captcha incorreta. Tente novamente."
 msgid "Captcha expired. Please solve the new one."
 msgstr "Captcha expirado. Resolva o novo desafio."
 
-#: lib/litte_code_web/live/home_live.ex:400
+#: lib/litte_code_web/live/home_live.ex:586
 #, elixir-autogen, elixir-format
 msgid "Captcha: what is"
 msgstr "Captcha: quanto é"
 
-#: lib/litte_code_web/live/home_live.ex:315
-#: lib/litte_code_web/live/home_live.ex:461
+#: lib/litte_code_web/live/home_live.ex:501
+#: lib/litte_code_web/live/home_live.ex:647
 #, elixir-autogen, elixir-format
 msgid "Copied!"
 msgstr "Copiado!"
 
-#: lib/litte_code_web/live/home_live.ex:466
+#: lib/litte_code_web/live/home_live.ex:652
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr "Copiar"
 
-#: lib/litte_code_web/live/home_live.ex:463
+#: lib/litte_code_web/live/home_live.ex:649
 #, elixir-autogen, elixir-format
 msgid "Copy short link"
 msgstr "Copiar link curto"
@@ -68,7 +68,7 @@ msgstr "Eu fiquei puto com sites de QR Code, então fiz o meu próprio sem anún
 msgid "Language"
 msgstr "Idioma"
 
-#: lib/litte_code_web/live/home_live.ex:345
+#: lib/litte_code_web/live/home_live.ex:531
 #, elixir-autogen, elixir-format
 msgid "Long URL"
 msgstr "URL longa"
@@ -83,12 +83,12 @@ msgstr "Lubien no GitHub"
 msgid "Made with"
 msgstr "Feito com"
 
-#: lib/litte_code_web/live/home_live.ex:409
+#: lib/litte_code_web/live/home_live.ex:595
 #, elixir-autogen, elixir-format
 msgid "New"
 msgstr "Novo"
 
-#: lib/litte_code_web/live/home_live.ex:407
+#: lib/litte_code_web/live/home_live.ex:593
 #, elixir-autogen, elixir-format
 msgid "New captcha"
 msgstr "Novo captcha"
@@ -99,17 +99,17 @@ msgid "Please solve the captcha to continue."
 msgstr "Resolva o captcha para continuar."
 
 #: lib/litte_code_web/live/home_live.ex:213
-#: lib/litte_code_web/live/home_live.ex:283
+#: lib/litte_code_web/live/home_live.ex:469
 #, elixir-autogen, elixir-format
 msgid "QR Code"
 msgstr "QR Code"
 
-#: lib/litte_code_web/live/home_live.ex:470
+#: lib/litte_code_web/live/home_live.ex:656
 #, elixir-autogen, elixir-format
 msgid "Redirects to"
 msgstr "Redireciona para"
 
-#: lib/litte_code_web/live/home_live.ex:435
+#: lib/litte_code_web/live/home_live.ex:621
 #, elixir-autogen, elixir-format
 msgid "Shorten"
 msgstr "Encurtar"
@@ -144,7 +144,7 @@ msgstr "Links minúsculos e QR codes bonitos. Nada mais."
 msgid "Tools"
 msgstr "Ferramentas"
 
-#: lib/litte_code_web/live/home_live.ex:293
+#: lib/litte_code_web/live/home_live.ex:479
 #, elixir-autogen, elixir-format
 msgid "Type something to generate a QR code."
 msgstr "Digite algo para gerar um QR code."
@@ -164,12 +164,12 @@ msgstr "Não conseguimos gerar um hash único. Tente de novo."
 msgid "You're going a bit fast. Try again in a minute."
 msgstr "Você está indo rápido demais. Tente novamente em um minuto."
 
-#: lib/litte_code_web/live/home_live.ex:420
+#: lib/litte_code_web/live/home_live.ex:606
 #, elixir-autogen, elixir-format
 msgid "Your answer"
 msgstr "Sua resposta"
 
-#: lib/litte_code_web/live/home_live.ex:443
+#: lib/litte_code_web/live/home_live.ex:629
 #, elixir-autogen, elixir-format
 msgid "Your short link"
 msgstr "Seu link curto"
@@ -204,17 +204,17 @@ msgstr "Código-fonte"
 msgid "View source on GitHub"
 msgstr "Ver o código-fonte no GitHub"
 
-#: lib/litte_code_web/live/home_live.ex:320
+#: lib/litte_code_web/live/home_live.ex:506
 #, elixir-autogen, elixir-format
 msgid "Copy image"
 msgstr "Copiar imagem"
 
-#: lib/litte_code_web/live/home_live.ex:309
+#: lib/litte_code_web/live/home_live.ex:495
 #, elixir-autogen, elixir-format
 msgid "Download PNG"
 msgstr "Baixar PNG"
 
-#: lib/litte_code_web/live/home_live.ex:305
+#: lib/litte_code_web/live/home_live.ex:491
 #, elixir-autogen, elixir-format
 msgid "Downloaded!"
 msgstr "Baixado!"
@@ -264,7 +264,7 @@ msgstr "Documentação da API"
 msgid "All errors are JSON. The most common ones:"
 msgstr "Todos os erros são JSON. Os mais comuns:"
 
-#: lib/litte_code_web/live/home_live.ex:368
+#: lib/litte_code_web/live/home_live.ex:554
 #, elixir-autogen, elixir-format
 msgid "Custom slug (optional)"
 msgstr "Slug personalizado (opcional)"
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Link creation is capped at 30 requests per minute per IP. Every response includes "
 msgstr ""
 
-#: lib/litte_code_web/live/home_live.ex:380
+#: lib/litte_code_web/live/home_live.ex:566
 #, elixir-autogen, elixir-format
 msgid "Lowercase letters, digits, and dashes. 2–50 characters."
 msgstr "Letras minúsculas, dígitos e hífens. Entre 2 e 50 caracteres."
@@ -393,3 +393,139 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "validation failed (missing / invalid URL, slug taken, etc.)"
 msgstr ""
+
+#: lib/litte_code_web/live/home_live.ex:337
+#, elixir-autogen, elixir-format
+msgid "Background"
+msgstr "Fundo"
+
+#: lib/litte_code_web/live/home_live.ex:343
+#, elixir-autogen, elixir-format
+msgid "Background color"
+msgstr "Cor de fundo"
+
+#: lib/litte_code_web/live/home_live.ex:392
+#, elixir-autogen, elixir-format
+msgid "Center logo (optional)"
+msgstr "Logo central (opcional)"
+
+#: lib/litte_code_web/live/home_live.ex:285
+#, elixir-autogen, elixir-format
+msgid "Customize"
+msgstr "Personalizar"
+
+#: lib/litte_code_web/live/home_live.ex:327
+#, elixir-autogen, elixir-format
+msgid "Foreground"
+msgstr "Frente"
+
+#: lib/litte_code_web/live/home_live.ex:333
+#, elixir-autogen, elixir-format
+msgid "Foreground color"
+msgstr "Cor da frente"
+
+#: lib/litte_code_web/live/home_live.ex:407
+#, elixir-autogen, elixir-format
+msgid "Remove logo"
+msgstr "Remover logo"
+
+#: lib/litte_code_web/live/home_live.ex:451
+#, elixir-autogen, elixir-format
+msgid "Reset"
+msgstr "Redefinir"
+
+#: lib/litte_code_web/live/home_live.ex:400
+#, elixir-autogen, elixir-format
+msgid "Upload a logo to place in the center of the QR code"
+msgstr "Envie um logo para colocar no centro do QR code"
+
+#: lib/litte_code_web/live/home_live.ex:351
+#, elixir-autogen, elixir-format
+msgid "Border"
+msgstr "Borda"
+
+#: lib/litte_code_web/live/home_live.ex:357
+#, elixir-autogen, elixir-format
+msgid "Border color"
+msgstr "Cor da borda"
+
+#: lib/litte_code_web/live/home_live.ex:361
+#, elixir-autogen, elixir-format
+msgid "Border width"
+msgstr "Espessura da borda"
+
+#: lib/litte_code_web/live/home_live.ex:370
+#, elixir-autogen, elixir-format
+msgid "Border width (0 = no border)"
+msgstr "Espessura da borda (0 = sem borda)"
+
+#: lib/litte_code_web/live/home_live.ex:698
+#, elixir-autogen, elixir-format
+msgid "Bubble"
+msgstr "Bolha"
+
+#: lib/litte_code_web/live/home_live.ex:693
+#, elixir-autogen, elixir-format
+msgid "Business"
+msgstr "Corporativo"
+
+#: lib/litte_code_web/live/home_live.ex:690
+#, elixir-autogen, elixir-format
+msgid "Classic"
+msgstr "Clássico"
+
+#: lib/litte_code_web/live/home_live.ex:377
+#: lib/litte_code_web/live/home_live.ex:386
+#, elixir-autogen, elixir-format
+msgid "Corner radius"
+msgstr "Raio dos cantos"
+
+#: lib/litte_code_web/live/home_live.ex:700
+#, elixir-autogen, elixir-format
+msgid "Developer"
+msgstr "Dev"
+
+#: lib/litte_code_web/live/home_live.ex:699
+#, elixir-autogen, elixir-format
+msgid "Lo-fi"
+msgstr "Lo-fi"
+
+#: lib/litte_code_web/live/home_live.ex:702
+#, elixir-autogen, elixir-format
+msgid "Neon"
+msgstr "Neon"
+
+#: lib/litte_code_web/live/home_live.ex:296
+#, elixir-autogen, elixir-format
+msgid "Presets"
+msgstr "Presets"
+
+#: lib/litte_code_web/live/home_live.ex:703
+#, elixir-autogen, elixir-format
+msgid "Print"
+msgstr "Impressão"
+
+#: lib/litte_code_web/live/home_live.ex:701
+#, elixir-autogen, elixir-format
+msgid "Sunset"
+msgstr "Pôr do sol"
+
+#: lib/litte_code_web/live/home_live.ex:420
+#, elixir-autogen, elixir-format
+msgid "Logo size"
+msgstr "Tamanho do logo"
+
+#: lib/litte_code_web/live/home_live.ex:429
+#, elixir-autogen, elixir-format
+msgid "Logo size (percent of the QR width)"
+msgstr "Tamanho do logo (porcentagem da largura do QR)"
+
+#: lib/litte_code_web/live/home_live.ex:413
+#, elixir-autogen, elixir-format
+msgid "Never leaves your browser. PNG, JPG or SVG. Error correction is bumped to level H automatically."
+msgstr "Não sai do seu navegador. PNG, JPG ou SVG. A correção de erro sobe automaticamente para o nível H."
+
+#: lib/litte_code_web/live/home_live.ex:439
+#, elixir-autogen, elixir-format
+msgid "Rounded corners"
+msgstr "Cantos arredondados"

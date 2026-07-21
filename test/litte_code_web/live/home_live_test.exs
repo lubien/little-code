@@ -31,6 +31,54 @@ defmodule LitteCodeWeb.HomeLiveTest do
       assert has_element?(view, "#qr-text-input")
     end
 
+    test "renders the Customize block with color pickers, logo input, and reset",
+         %{conn: conn} do
+      {:ok, view, html} = live(conn, ~p"/")
+
+      assert has_element?(view, "#qr-customize")
+      assert has_element?(view, "input[data-qr-fg]")
+      assert has_element?(view, "input[data-qr-bg]")
+      assert has_element?(view, "input[data-qr-logo][type=file]")
+      assert has_element?(view, "button[data-qr-logo-remove]")
+      assert has_element?(view, "button[data-qr-reset]")
+      assert html =~ "Customize"
+      assert html =~ "Foreground"
+      assert html =~ "Background"
+    end
+
+    test "renders border color / width and radius controls", %{conn: conn} do
+      {:ok, view, html} = live(conn, ~p"/")
+
+      assert has_element?(view, "input[data-qr-border-color][type=color]")
+      assert has_element?(view, "input[data-qr-border-width][type=range][max='40']")
+      assert has_element?(view, "input[data-qr-radius][type=range][max='50']")
+      assert html =~ "Border"
+      assert html =~ "Corner radius"
+    end
+
+    test "renders logo size and rounded-corners controls", %{conn: conn} do
+      {:ok, view, html} = live(conn, ~p"/")
+
+      assert has_element?(view, "input[data-qr-logo-size][type=range][min='10'][max='30']")
+      assert has_element?(view, "input[data-qr-logo-rounded][type=checkbox]")
+      assert html =~ "Logo size"
+      assert html =~ "Rounded corners"
+    end
+
+    test "renders all 8 preset buttons", %{conn: conn} do
+      {:ok, view, html} = live(conn, ~p"/")
+
+      for key <- ~w(classic business bubble lo-fi developer sunset neon print) do
+        assert has_element?(view, ~s|button[data-qr-preset="#{key}"]|)
+      end
+
+      # Labels rendered for a few, to prove translation path works.
+      assert html =~ "Classic"
+      assert html =~ "Bubble"
+      assert html =~ "Developer"
+      assert html =~ "Neon"
+    end
+
     test "renders Download PNG and Copy image buttons for the QR", %{conn: conn} do
       {:ok, view, html} = live(conn, ~p"/")
 
